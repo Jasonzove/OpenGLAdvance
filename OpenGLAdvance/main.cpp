@@ -1,8 +1,7 @@
 #include <stdio.h>
 #include <windows.h>
 #include <gl/GL.h>
-
-#pragma comment(lib, "opengl32.lib") //可以在工程里面设置
+#include <gl/GLU.h>
 
 /* 监听用户操作函数;LRESULT(函数返回值类型); CALLBACK(调用方式)
    hwnd(窗口句柄，用于标记用户操作了哪一个窗口); msg(消息ID，比如1表示用户拖拽了窗口);
@@ -77,6 +76,13 @@ INT WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	HGLRC rc = wglCreateContext(dc); //渲染环境
 	wglMakeCurrent(dc, rc); //使渲染环境生效
 
+	//初始化矩阵
+	glMatrixMode(GL_PROJECTION);
+	glLoadIdentity();
+	gluPerspective(50, windowWidth / windowHeight, 0.1f, 1000.f);
+	glMatrixMode(GL_MODELVIEW);
+	glLoadIdentity();
+
 	glClearColor(0.1f, 0.4f, 0.6f, 1.0f);
 	ShowWindow(hwnd, SW_SHOW);
 	UpdateWindow(hwnd);
@@ -96,6 +102,17 @@ INT WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 		}
 
 		glClear(GL_COLOR_BUFFER_BIT);
+
+		glPushMatrix();
+		glEnable(GL_CULL_FACE);
+		glBegin(GL_TRIANGLES);
+		glVertex3f(0.0f, 0.0f, -5.0f);
+		glVertex3f(2.0f, 0.0f, -5.0f);
+		glVertex3f(0.0f, 2.0f, -5.0f);
+		glEnd();
+		glPopMatrix();
+
+
 		SwapBuffers(dc);
 	}
 
