@@ -1,6 +1,8 @@
 #include <stdio.h>
 #include <windows.h>
 #include "glew.h"
+#include "Glm/glm.hpp"
+#include "Glm/ext.hpp"
 
 
 struct Vertex
@@ -33,7 +35,8 @@ char* LoadShaderContent(const char* path)
 		int nlen = ftell(pFile);
 		char* buffer = new char[nlen + 1];
 		rewind(pFile);
-		fread(buffer, nlen + 1, 1, pFile);
+		fread(buffer, nlen, 1, pFile);
+		buffer[nlen] = '\0';
 		fclose(pFile);
 		return buffer;
 	}
@@ -130,6 +133,12 @@ INT WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	//glewInit必须放在wglMakeCurrent之后
 	glewInit();
 	GLuint proram = CreateGPUProgram("sample.vs", "sample.fs"); //必须放在glewInit之后
+	GLint posLoaction, colorLocation, MLocation, VLocation, PLocation;
+	posLoaction = glGetAttribLocation(proram, "pos");
+	colorLocation = glGetAttribLocation(proram, "color");
+	MLocation = glGetUniformLocation(proram, "M");
+	VLocation = glGetUniformLocation(proram, "V");
+	PLocation = glGetUniformLocation(proram, "P");
 
 	Vertex vertexs[3];
 	vertexs[0].pos[0] = 0.0f;
@@ -166,6 +175,15 @@ INT WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	ShowWindow(hwnd, SW_SHOW);
 	UpdateWindow(hwnd);
 
+	//数据准备
+	float identity[] = {
+		1,0,0,0,
+		0,1,0,0,
+		0,0,1,0,
+		0,0,0,1
+	};
+	glm::mat4 projection = glm::perspective(45.0f, 800.0f / 600.0f, 0.1f, 1000.0f);
+
 	//用循环来保持窗口显示
 	MSG msg;
 	while (true)
@@ -182,7 +200,19 @@ INT WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 
 		glClear(GL_COLOR_BUFFER_BIT);
 		glUseProgram(proram);
+		glUniformMatrix4fv(MLocation, 1, GL_FALSE, identity);
+		glUniformMatrix4fv(VLocation, 1, GL_FALSE, identity);
+		glUniformMatrix4fv(PLocation, 1, GL_FALSE, glm::value_ptr(projection));
 
+		glBindBuffer(GL_ARRAY_BUFFER, vbo);
+		glEnableVertexAttribArray(posLoaction);
+		glVertexAttribPointer(posLoaction, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)0);
+		glEnableVertexAttribArray(colorLocation);
+		glVertexAttribPointer(colorLocation, 4, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)(3 * sizeof(float)));
+		
+		glDrawArrays(GL_TRIANGLES, 0, 3);
+
+		glBindBuffer(GL_ARRAY_BUFFER, 0);
 		glUseProgram(0);
 		SwapBuffers(dc);
 	}
