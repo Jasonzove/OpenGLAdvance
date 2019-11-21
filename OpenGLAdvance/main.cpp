@@ -3,6 +3,12 @@
 #include "glew.h"
 
 
+struct Vertex
+{
+	float pos[3];
+	float color[4];
+};
+
 /* 监听用户操作函数;LRESULT(函数返回值类型); CALLBACK(调用方式)
    hwnd(窗口句柄，用于标记用户操作了哪一个窗口); msg(消息ID，比如1表示用户拖拽了窗口);
    wParam(消息附带参数，比如用户拖拽窗口，具体拖到什么地方去了); lParam(消息附带参数)
@@ -125,6 +131,36 @@ INT WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	glewInit();
 	GLuint proram = CreateGPUProgram("sample.vs", "sample.fs"); //必须放在glewInit之后
 
+	Vertex vertexs[3];
+	vertexs[0].pos[0] = 0.0f;
+	vertexs[0].pos[1] = 0.0f;
+	vertexs[0].pos[2] = -5.0f;
+	vertexs[0].color[0] = 1.0f;
+	vertexs[0].color[1] = 1.0f;
+	vertexs[0].color[2] = 1.0f;
+	vertexs[0].color[3] = 1.0f;
+
+	vertexs[1].pos[0] = 2.0f;
+	vertexs[1].pos[1] = 0.0f;
+	vertexs[1].pos[2] = -5.0f;
+	vertexs[1].color[0] = 1.0f;
+	vertexs[1].color[1] = 1.0f;
+	vertexs[1].color[2] = 1.0f;
+	vertexs[1].color[3] = 1.0f;
+
+	vertexs[2].pos[0] = 0.0f;
+	vertexs[2].pos[1] = 2.0f;
+	vertexs[2].pos[2] = -5.0f;
+	vertexs[2].color[0] = 1.0f;
+	vertexs[2].color[1] = 1.0f;
+	vertexs[2].color[2] = 1.0f;
+	vertexs[2].color[3] = 1.0f;
+
+	GLuint vbo;
+	glGenBuffers(1, &vbo);
+	glBindBuffer(GL_ARRAY_BUFFER, vbo);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(Vertex) * 3, vertexs, GL_STATIC_DRAW);
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
 
 	glClearColor(0.1f, 0.4f, 0.6f, 1.0f);
 	ShowWindow(hwnd, SW_SHOW);
@@ -145,8 +181,9 @@ INT WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 		}
 
 		glClear(GL_COLOR_BUFFER_BIT);
+		glUseProgram(proram);
 
-
+		glUseProgram(0);
 		SwapBuffers(dc);
 	}
 
