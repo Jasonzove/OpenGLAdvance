@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <windows.h>
-#include <gl/GL.h>
-#include <gl/GLU.h>
+#include "glew.h"
+
 
 /* 监听用户操作函数;LRESULT(函数返回值类型); CALLBACK(调用方式)
    hwnd(窗口句柄，用于标记用户操作了哪一个窗口); msg(消息ID，比如1表示用户拖拽了窗口);
@@ -17,6 +17,51 @@ LRESULT CALLBACK GLWindowProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 	}
 	return DefWindowProc(hwnd, msg, wParam, lParam);
 }
+
+char* LoadShaderContent(const char* path)
+{
+	FILE* pFile = fopen(path, "rb");
+	if (pFile)
+	{
+		fseek(pFile, 0, SEEK_END);
+		int nlen = ftell(pFile);
+		char* buffer = new char[nlen + 1];
+		rewind(pFile);
+		fread(buffer, nlen + 1, 1, pFile);
+		fclose(pFile);
+		return buffer;
+	}
+	fclose(pFile);
+	return nullptr;
+}
+
+GLuint CreateGPUProgram(const char* vsShaderPath, const char* fsShaderPath)
+{
+	GLuint vsShader = glCreateShader(GL_VERTEX_SHADER);
+	GLuint fsShader = glCreateShader(GL_FRAGMENT_SHADER);
+	const char* vsCode = LoadShaderContent(vsShaderPath);
+	const char* fsCode = LoadShaderContent(fsShaderPath);
+	//传入GPU
+	glShaderSource(vsShader, 1, &vsCode, nullptr);
+	glShaderSource(fsShader, 1, &fsCode, nullptr);
+	//编译
+	glCompileShader(vsShader);
+	glCompileShader(fsShader);
+	//创建program并attach
+	GLuint program = glCreateProgram();
+	glAttachShader(program, vsShader);
+	glAttachShader(program, fsShader);
+	//Link
+	glLinkProgram(program);
+	//detach and delete
+	glDetachShader(program, vsShader);
+	glDetachShader(program, fsShader);
+	glDeleteShader(vsShader);
+	glDeleteShader(fsShader);
+
+	return program;
+}
+
 
 /* INT（函数返回值类型）; WINAPI（函数修饰符,强调调用方式）;
    操作系统启东时传入的参数：hInstance（当前应用程序的实例),hPrevInstance（上一次该应用程序启动的实例），
@@ -76,12 +121,10 @@ INT WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	HGLRC rc = wglCreateContext(dc); //渲染环境
 	wglMakeCurrent(dc, rc); //使渲染环境生效
 
-	//初始化矩阵
-	glMatrixMode(GL_PROJECTION);
-	glLoadIdentity();
-	gluPerspective(50, windowWidth / windowHeight, 0.1f, 1000.f);
-	glMatrixMode(GL_MODELVIEW);
-	glLoadIdentity();
+	//glewInit必须放在wglMakeCurrent之后
+	glewInit();
+	GLuint proram = CreateGPUProgram("sample.vs", "sample.fs"); //必须放在glewInit之后
+
 
 	glClearColor(0.1f, 0.4f, 0.6f, 1.0f);
 	ShowWindow(hwnd, SW_SHOW);
@@ -102,15 +145,6 @@ INT WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 		}
 
 		glClear(GL_COLOR_BUFFER_BIT);
-
-		glPushMatrix();
-		glEnable(GL_CULL_FACE);
-		glBegin(GL_TRIANGLES);
-		glVertex3f(0.0f, 0.0f, -5.0f);
-		glVertex3f(2.0f, 0.0f, -5.0f);
-		glVertex3f(0.0f, 2.0f, -5.0f);
-		glEnd();
-		glPopMatrix();
 
 
 		SwapBuffers(dc);
