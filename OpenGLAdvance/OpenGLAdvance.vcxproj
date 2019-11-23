@@ -81,6 +81,9 @@
     <Link>
       <AdditionalDependencies>opengl32.lib;glew32.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
+    <PostBuildEvent>
+      <Command>editbin /subsystem:console $(OutDir)$(ProjectName).exe</Command>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
@@ -124,7 +127,7 @@
   <ItemGroup>
     <ClCompile Include="main.cpp" />
     <ClCompile Include="model.cpp" />
-    <ClCompile Include="opengl_helper.cpp" />
+    <ClCompile Include="tool.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Res\shader\sample.fs" />
@@ -132,7 +135,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="model.h" />
-    <ClInclude Include="opengl_helper.h" />
+    <ClInclude Include="tool.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

@@ -21,10 +21,10 @@
     <ClCompile Include="main.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="opengl_helper.cpp">
+    <ClCompile Include="model.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="model.cpp">
+    <ClCompile Include="tool.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -37,10 +37,10 @@
     </None>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="opengl_helper.h">
+    <ClInclude Include="model.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="model.h">
+    <ClInclude Include="tool.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

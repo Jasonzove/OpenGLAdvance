@@ -28,30 +28,12 @@ LRESULT CALLBACK GLWindowProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 	return DefWindowProc(hwnd, msg, wParam, lParam);
 }
 
-char* LoadShaderContent(const char* path)
-{
-	FILE* pFile = fopen(path, "rb");
-	if (pFile)
-	{
-		fseek(pFile, 0, SEEK_END);
-		int nlen = ftell(pFile);
-		char* buffer = new char[nlen + 1];
-		rewind(pFile);
-		fread(buffer, nlen, 1, pFile);
-		buffer[nlen] = '\0';
-		fclose(pFile);
-		return buffer;
-	}
-	fclose(pFile);
-	return nullptr;
-}
-
 GLuint CreateGPUProgram(const char* vsShaderPath, const char* fsShaderPath)
 {
 	GLuint vsShader = glCreateShader(GL_VERTEX_SHADER);
 	GLuint fsShader = glCreateShader(GL_FRAGMENT_SHADER);
-	const char* vsCode = LoadShaderContent(vsShaderPath);
-	const char* fsCode = LoadShaderContent(fsShaderPath);
+	const char* vsCode = LoadFileContent(vsShaderPath);
+	const char* fsCode = LoadFileContent(fsShaderPath);
 	//´«ÈëGPU
 	glShaderSource(vsShader, 1, &vsCode, nullptr);
 	glShaderSource(fsShader, 1, &fsCode, nullptr);
@@ -181,25 +163,25 @@ INT WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 		}
 
 		glClear(GL_COLOR_BUFFER_BIT);
-		glUseProgram(proram);
-		glUniformMatrix4fv(MLocation, 1, GL_FALSE, identity);
-		glUniformMatrix4fv(VLocation, 1, GL_FALSE, identity);
-		glUniformMatrix4fv(PLocation, 1, GL_FALSE, glm::value_ptr(projection));
+		//glUseProgram(proram);
+		//glUniformMatrix4fv(MLocation, 1, GL_FALSE, identity);
+		//glUniformMatrix4fv(VLocation, 1, GL_FALSE, identity);
+		//glUniformMatrix4fv(PLocation, 1, GL_FALSE, glm::value_ptr(projection));
 
-		glBindBuffer(GL_ARRAY_BUFFER, vbo);
-		glEnableVertexAttribArray(posLoaction);
-		glVertexAttribPointer(posLoaction, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)0);
-		glEnableVertexAttribArray(colorLocation);
-		glVertexAttribPointer(colorLocation, 4, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)(3 * sizeof(float)));
-		
-		//glDrawArrays(GL_TRIANGLES, 0, 3);
-		glBindBuffer(GL_ARRAY_BUFFER, 0);
+		//glBindBuffer(GL_ARRAY_BUFFER, vbo);
+		//glEnableVertexAttribArray(posLoaction);
+		//glVertexAttribPointer(posLoaction, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)0);
+		//glEnableVertexAttribArray(colorLocation);
+		//glVertexAttribPointer(colorLocation, 4, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)(3 * sizeof(float)));
+		//
+		////glDrawArrays(GL_TRIANGLES, 0, 3);
+		//glBindBuffer(GL_ARRAY_BUFFER, 0);
 
-		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo);
-		glDrawElements(GL_TRIANGLES, 3, GL_UNSIGNED_INT, 0);
-		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+		//glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo);
+		//glDrawElements(GL_TRIANGLES, 3, GL_UNSIGNED_INT, 0);
+		//glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 
-		glUseProgram(0);
+		//glUseProgram(0);
 		SwapBuffers(dc);
 	}
 
