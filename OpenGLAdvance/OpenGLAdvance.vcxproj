@@ -123,10 +123,16 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="model.cpp" />
+    <ClCompile Include="opengl_helper.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Res\shader\sample.fs" />
     <None Include="Res\shader\sample.vs" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="model.h" />
+    <ClInclude Include="opengl_helper.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

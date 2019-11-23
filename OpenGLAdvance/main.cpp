@@ -3,6 +3,8 @@
 #include "glew.h"
 #include "Glm/glm.hpp"
 #include "Glm/ext.hpp"
+#include "opengl_helper.h"
+#include "model.h"
 
 
 struct Vertex
@@ -140,36 +142,7 @@ INT WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	VLocation = glGetUniformLocation(proram, "V");
 	PLocation = glGetUniformLocation(proram, "P");
 
-	Vertex vertexs[3];
-	vertexs[0].pos[0] = 0.0f;
-	vertexs[0].pos[1] = 0.0f;
-	vertexs[0].pos[2] = -5.0f;
-	vertexs[0].color[0] = 1.0f;
-	vertexs[0].color[1] = 1.0f;
-	vertexs[0].color[2] = 1.0f;
-	vertexs[0].color[3] = 1.0f;
-
-	vertexs[1].pos[0] = 2.0f;
-	vertexs[1].pos[1] = 0.0f;
-	vertexs[1].pos[2] = -5.0f;
-	vertexs[1].color[0] = 1.0f;
-	vertexs[1].color[1] = 1.0f;
-	vertexs[1].color[2] = 1.0f;
-	vertexs[1].color[3] = 1.0f;
-
-	vertexs[2].pos[0] = 0.0f;
-	vertexs[2].pos[1] = 2.0f;
-	vertexs[2].pos[2] = -5.0f;
-	vertexs[2].color[0] = 1.0f;
-	vertexs[2].color[1] = 1.0f;
-	vertexs[2].color[2] = 1.0f;
-	vertexs[2].color[3] = 1.0f;
-
-	GLuint vbo;
-	glGenBuffers(1, &vbo);
-	glBindBuffer(GL_ARRAY_BUFFER, vbo);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(Vertex) * 3, vertexs, GL_STATIC_DRAW);
-	glBindBuffer(GL_ARRAY_BUFFER, 0);
+	GLuint vbo = CreateBufferObject(GL_ARRAY_BUFFER, sizeof(Vertex) * 3, GL_STATIC_DRAW, nullptr);
 
 	unsigned int indexes[] = { 0,1,2 };
 	GLuint ibo;
