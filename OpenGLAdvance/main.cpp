@@ -142,14 +142,16 @@ INT WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	VLocation = glGetUniformLocation(proram, "V");
 	PLocation = glGetUniformLocation(proram, "P");
 
-	GLuint vbo = CreateBufferObject(GL_ARRAY_BUFFER, sizeof(Vertex) * 3, GL_STATIC_DRAW, nullptr);
+	unsigned int* indexes = nullptr;
+	int vertexCount = 0;
+	int indexCount = 0;
+	
+	//load obj model
+	VertexData* vertexes = LoadObjModel("Res/model/Quad.obj", &indexes, vertexCount, indexCount);
 
-	unsigned int indexes[] = { 0,1,2 };
-	GLuint ibo;
-	glGenBuffers(1, &ibo);
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo);
-	glBufferData(GL_ELEMENT_ARRAY_BUFFER, 3*sizeof(unsigned int), indexes, GL_STATIC_DRAW);
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+	//obj model -> vbo & ibo
+	GLuint vbo = CreateBufferObject(GL_ARRAY_BUFFER, sizeof(Vertex) * 3, GL_STATIC_DRAW, vertexes);
+	GLuint ibo = CreateBufferObject(GL_ELEMENT_ARRAY_BUFFER, sizeof(unsigned int) * 3, GL_STATIC_DRAW, indexes);
 
 	glClearColor(0.1f, 0.4f, 0.6f, 1.0f);
 	ShowWindow(hwnd, SW_SHOW);
