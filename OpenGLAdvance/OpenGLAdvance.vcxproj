@@ -125,8 +125,8 @@
     <ClCompile Include="main.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="sample.fs" />
-    <None Include="sample.vs" />
+    <None Include="Res\shader\sample.fs" />
+    <None Include="Res\shader\sample.vs" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

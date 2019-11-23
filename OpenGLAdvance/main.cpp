@@ -132,7 +132,7 @@ INT WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 
 	//glewInit必须放在wglMakeCurrent之后
 	glewInit();
-	GLuint proram = CreateGPUProgram("sample.vs", "sample.fs"); //必须放在glewInit之后
+	GLuint proram = CreateGPUProgram("Res/shader/sample.vs", "Res/shader/sample.fs"); //必须放在glewInit之后
 	GLint posLoaction, colorLocation, MLocation, VLocation, PLocation;
 	posLoaction = glGetAttribLocation(proram, "pos");
 	colorLocation = glGetAttribLocation(proram, "color");

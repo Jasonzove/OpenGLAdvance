@@ -23,10 +23,10 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <None Include="sample.fs">
+    <None Include="Res\shader\sample.fs">
       <Filter>Source Files\shader</Filter>
     </None>
-    <None Include="sample.vs">
+    <None Include="Res\shader\sample.vs">
       <Filter>Source Files\shader</Filter>
     </None>
   </ItemGroup>
