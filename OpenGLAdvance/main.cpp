@@ -116,10 +116,11 @@ INT WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 
 	//glewInit必须放在wglMakeCurrent之后
 	glewInit();
-	GLuint proram = CreateGPUProgram("Res/shader/sample.vs", "Res/shader/sample.fs"); //必须放在glewInit之后
-	GLint posLoaction, colorLocation, MLocation, VLocation, PLocation;
+	GLuint proram = CreateGPUProgram("Res/shader/obj_model.vs", "Res/shader/obj_model.fs"); //必须放在glewInit之后
+	GLint posLoaction, texcoordLocation, normalLocation ,MLocation, VLocation, PLocation;
 	posLoaction = glGetAttribLocation(proram, "pos");
-	colorLocation = glGetAttribLocation(proram, "color");
+	texcoordLocation = glGetAttribLocation(proram, "texcoord");
+	normalLocation = glGetAttribLocation(proram, "normal");
 	MLocation = glGetUniformLocation(proram, "M");
 	VLocation = glGetUniformLocation(proram, "V");
 	PLocation = glGetUniformLocation(proram, "P");
@@ -129,11 +130,11 @@ INT WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	int indexCount = 0;
 	
 	//load obj model
-	VertexData* vertexes = LoadObjModel("Res/model/Quad.obj", &indexes, vertexCount, indexCount);
+	VertexData* vertexes = LoadObjModel("Res/model/Sphere.obj", &indexes, vertexCount, indexCount);
 
 	//obj model -> vbo & ibo
-	GLuint vbo = CreateBufferObject(GL_ARRAY_BUFFER, sizeof(Vertex) * 3, GL_STATIC_DRAW, vertexes);
-	GLuint ibo = CreateBufferObject(GL_ELEMENT_ARRAY_BUFFER, sizeof(unsigned int) * 3, GL_STATIC_DRAW, indexes);
+	GLuint vbo = CreateBufferObject(GL_ARRAY_BUFFER, sizeof(Vertex) * vertexCount, GL_STATIC_DRAW, vertexes);
+	GLuint ibo = CreateBufferObject(GL_ELEMENT_ARRAY_BUFFER, sizeof(unsigned int) * indexCount, GL_STATIC_DRAW, indexes);
 
 	glClearColor(0.1f, 0.4f, 0.6f, 1.0f);
 	ShowWindow(hwnd, SW_SHOW);
@@ -146,6 +147,7 @@ INT WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 		0,0,1,0,
 		0,0,0,1
 	};
+	glm::mat4 modelMatrix = glm::translate(0.0f, 0.0f, -4.0f);
 	glm::mat4 projection = glm::perspective(45.0f, 800.0f / 600.0f, 0.1f, 1000.0f);
 
 	//用循环来保持窗口显示
@@ -163,25 +165,27 @@ INT WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 		}
 
 		glClear(GL_COLOR_BUFFER_BIT);
-		//glUseProgram(proram);
-		//glUniformMatrix4fv(MLocation, 1, GL_FALSE, identity);
-		//glUniformMatrix4fv(VLocation, 1, GL_FALSE, identity);
-		//glUniformMatrix4fv(PLocation, 1, GL_FALSE, glm::value_ptr(projection));
+		glUseProgram(proram);
+		glUniformMatrix4fv(MLocation, 1, GL_FALSE, glm::value_ptr(modelMatrix));
+		glUniformMatrix4fv(VLocation, 1, GL_FALSE, identity);
+		glUniformMatrix4fv(PLocation, 1, GL_FALSE, glm::value_ptr(projection));
 
-		//glBindBuffer(GL_ARRAY_BUFFER, vbo);
-		//glEnableVertexAttribArray(posLoaction);
-		//glVertexAttribPointer(posLoaction, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)0);
-		//glEnableVertexAttribArray(colorLocation);
-		//glVertexAttribPointer(colorLocation, 4, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)(3 * sizeof(float)));
-		//
-		////glDrawArrays(GL_TRIANGLES, 0, 3);
-		//glBindBuffer(GL_ARRAY_BUFFER, 0);
+		glBindBuffer(GL_ARRAY_BUFFER, vbo);
+		glEnableVertexAttribArray(posLoaction);
+		glVertexAttribPointer(posLoaction, 3, GL_FLOAT, GL_FALSE, sizeof(VertexData), (void*)0);
+		glEnableVertexAttribArray(texcoordLocation);
+		glVertexAttribPointer(texcoordLocation, 2, GL_FLOAT, GL_FALSE, sizeof(VertexData), (void*)(3 * sizeof(float)));
+		glEnableVertexAttribArray(normalLocation);
+		glVertexAttribPointer(normalLocation, 3, GL_FLOAT, GL_FALSE, sizeof(VertexData), (void*)(5 * sizeof(float)));
+		
+		//glDrawArrays(GL_TRIANGLES, 0, 3);
+		glBindBuffer(GL_ARRAY_BUFFER, 0);
 
-		//glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo);
-		//glDrawElements(GL_TRIANGLES, 3, GL_UNSIGNED_INT, 0);
-		//glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo);
+		glDrawElements(GL_TRIANGLES, indexCount, GL_UNSIGNED_INT, 0);
+		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 
-		//glUseProgram(0);
+		glUseProgram(0);
 		SwapBuffers(dc);
 	}
 
