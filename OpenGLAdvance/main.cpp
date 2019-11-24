@@ -88,7 +88,7 @@ INT WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 
 	//glewInit必须放在wglMakeCurrent之后
 	glewInit();
-	GLuint proram = CreateGPUProgram("Res/shader/light.vs", "Res/shader/light.fs"); //必须放在glewInit之后
+	GLuint proram = CreateGPUProgram("Res/shader/specular.vs", "Res/shader/specular.fs"); //必须放在glewInit之后
 	GLint posLoaction, texcoordLocation, normalLocation ,MLocation, VLocation, PLocation, normalMatrixLocation;
 	posLoaction = glGetAttribLocation(proram, "pos");
 	texcoordLocation = glGetAttribLocation(proram, "texcoord");

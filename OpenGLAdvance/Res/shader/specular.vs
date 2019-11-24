@@ -8,9 +8,11 @@ uniform mat4 P;
 uniform mat4 NormalMatrix;
 
 varying vec3 V_Normal;
+varying vec4 V_WorldPos;
 
 void main()
 {
 	V_Normal = mat3(NormalMatrix)*normal;
+	V_WorldPos = M*vec4(pos, 1.0);
     gl_Position = P*V*M*vec4(pos, 1.0);
 }

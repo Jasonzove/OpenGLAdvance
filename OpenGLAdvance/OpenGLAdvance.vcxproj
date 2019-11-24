@@ -136,6 +136,8 @@
     <None Include="Res\shader\obj_model.vs" />
     <None Include="Res\shader\sample.fs" />
     <None Include="Res\shader\sample.vs" />
+    <None Include="Res\shader\specular.fs" />
+    <None Include="Res\shader\specular.vs" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="model.h" />
