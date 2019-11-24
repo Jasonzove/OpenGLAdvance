@@ -88,7 +88,7 @@ INT WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 
 	//glewInit必须放在wglMakeCurrent之后
 	glewInit();
-	GLuint proram = CreateGPUProgram("Res/shader/obj_model.vs", "Res/shader/obj_model.fs"); //必须放在glewInit之后
+	GLuint proram = CreateGPUProgram("Res/shader/light.vs", "Res/shader/light.fs"); //必须放在glewInit之后
 	GLint posLoaction, texcoordLocation, normalLocation ,MLocation, VLocation, PLocation;
 	posLoaction = glGetAttribLocation(proram, "pos");
 	texcoordLocation = glGetAttribLocation(proram, "texcoord");
@@ -108,7 +108,7 @@ INT WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	GLuint vbo = CreateBufferObject(GL_ARRAY_BUFFER, sizeof(Vertex) * vertexCount, GL_STATIC_DRAW, vertexes);
 	GLuint ibo = CreateBufferObject(GL_ELEMENT_ARRAY_BUFFER, sizeof(unsigned int) * indexCount, GL_STATIC_DRAW, indexes);
 
-	glClearColor(0.1f, 0.4f, 0.6f, 1.0f);
+	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 	ShowWindow(hwnd, SW_SHOW);
 	UpdateWindow(hwnd);
 
