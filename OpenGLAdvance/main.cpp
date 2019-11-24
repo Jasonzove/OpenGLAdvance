@@ -130,7 +130,7 @@ INT WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	int indexCount = 0;
 	
 	//load obj model
-	VertexData* vertexes = LoadObjModel("Res/model/Sphere.obj", &indexes, vertexCount, indexCount);
+	VertexData* vertexes = LoadObjModel("Res/model/niutou.obj", &indexes, vertexCount, indexCount);
 
 	//obj model -> vbo & ibo
 	GLuint vbo = CreateBufferObject(GL_ARRAY_BUFFER, sizeof(Vertex) * vertexCount, GL_STATIC_DRAW, vertexes);
@@ -147,7 +147,9 @@ INT WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 		0,0,1,0,
 		0,0,0,1
 	};
-	glm::mat4 modelMatrix = glm::translate(0.0f, 0.0f, -4.0f);
+
+	//model mat:旋转，平移，缩放  //view mat:视口，摄像机漫游 //projection：3d->2d
+	glm::mat4 modelMatrix = glm::translate(0.0f, -0.5f, -4.0f)*glm::scale(0.01f, 0.01f, 0.01f)*glm::rotate(-90.0f, 0.0f, 1.0f, 0.0f);
 	glm::mat4 projection = glm::perspective(45.0f, 800.0f / 600.0f, 0.1f, 1000.0f);
 
 	//用循环来保持窗口显示
