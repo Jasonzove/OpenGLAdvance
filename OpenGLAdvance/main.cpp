@@ -28,34 +28,6 @@ LRESULT CALLBACK GLWindowProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 	return DefWindowProc(hwnd, msg, wParam, lParam);
 }
 
-GLuint CreateGPUProgram(const char* vsShaderPath, const char* fsShaderPath)
-{
-	GLuint vsShader = glCreateShader(GL_VERTEX_SHADER);
-	GLuint fsShader = glCreateShader(GL_FRAGMENT_SHADER);
-	const char* vsCode = LoadFileContent(vsShaderPath);
-	const char* fsCode = LoadFileContent(fsShaderPath);
-	//传入GPU
-	glShaderSource(vsShader, 1, &vsCode, nullptr);
-	glShaderSource(fsShader, 1, &fsCode, nullptr);
-	//编译
-	glCompileShader(vsShader);
-	glCompileShader(fsShader);
-	//创建program并attach
-	GLuint program = glCreateProgram();
-	glAttachShader(program, vsShader);
-	glAttachShader(program, fsShader);
-	//Link
-	glLinkProgram(program);
-	//detach and delete
-	glDetachShader(program, vsShader);
-	glDetachShader(program, fsShader);
-	glDeleteShader(vsShader);
-	glDeleteShader(fsShader);
-
-	return program;
-}
-
-
 /* INT（函数返回值类型）; WINAPI（函数修饰符,强调调用方式）;
    操作系统启东时传入的参数：hInstance（当前应用程序的实例),hPrevInstance（上一次该应用程序启动的实例），
    lpCmdLine（命令行启东程序传入的参数）,nShowCmd（窗口显示相关参数）*/
