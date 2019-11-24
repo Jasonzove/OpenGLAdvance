@@ -89,26 +89,29 @@ INT WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	//glewInit必须放在wglMakeCurrent之后
 	glewInit();
 	GLuint proram = CreateGPUProgram("Res/shader/light.vs", "Res/shader/light.fs"); //必须放在glewInit之后
-	GLint posLoaction, texcoordLocation, normalLocation ,MLocation, VLocation, PLocation;
+	GLint posLoaction, texcoordLocation, normalLocation ,MLocation, VLocation, PLocation, normalMatrixLocation;
 	posLoaction = glGetAttribLocation(proram, "pos");
 	texcoordLocation = glGetAttribLocation(proram, "texcoord");
 	normalLocation = glGetAttribLocation(proram, "normal");
 	MLocation = glGetUniformLocation(proram, "M");
 	VLocation = glGetUniformLocation(proram, "V");
 	PLocation = glGetUniformLocation(proram, "P");
+	normalMatrixLocation = glGetUniformLocation(proram, "NormalMatrix");
 
 	unsigned int* indexes = nullptr;
 	int vertexCount = 0;
 	int indexCount = 0;
 	
 	//load obj model
-	VertexData* vertexes = LoadObjModel("Res/model/niutou.obj", &indexes, vertexCount, indexCount);
+	VertexData* vertexes = LoadObjModel("Res/model/Sphere.obj", &indexes, vertexCount, indexCount);
 
 	//obj model -> vbo & ibo
 	GLuint vbo = CreateBufferObject(GL_ARRAY_BUFFER, sizeof(Vertex) * vertexCount, GL_STATIC_DRAW, vertexes);
 	GLuint ibo = CreateBufferObject(GL_ELEMENT_ARRAY_BUFFER, sizeof(unsigned int) * indexCount, GL_STATIC_DRAW, indexes);
 
 	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+	glEnable(GL_DEPTH_TEST);
+
 	ShowWindow(hwnd, SW_SHOW);
 	UpdateWindow(hwnd);
 
@@ -121,8 +124,10 @@ INT WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	};
 
 	//model mat:旋转，平移，缩放  //view mat:视口，摄像机漫游 //projection：3d->2d
-	glm::mat4 modelMatrix = glm::translate(0.0f, -0.5f, -4.0f)*glm::scale(0.01f, 0.01f, 0.01f)*glm::rotate(-90.0f, 0.0f, 1.0f, 0.0f);
+	glm::mat4 modelMatrix = glm::translate(0.0f, 0.0f, -4.0f);
 	glm::mat4 projection = glm::perspective(45.0f, 800.0f / 600.0f, 0.1f, 1000.0f);
+	//光照
+	glm::mat4 normalMatrix = glm::inverseTranspose(modelMatrix);
 
 	//用循环来保持窗口显示
 	MSG msg;
@@ -138,11 +143,13 @@ INT WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 			DispatchMessage(&msg);
 		}
 
-		glClear(GL_COLOR_BUFFER_BIT);
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
 		glUseProgram(proram);
 		glUniformMatrix4fv(MLocation, 1, GL_FALSE, glm::value_ptr(modelMatrix));
 		glUniformMatrix4fv(VLocation, 1, GL_FALSE, identity);
 		glUniformMatrix4fv(PLocation, 1, GL_FALSE, glm::value_ptr(projection));
+		glUniformMatrix4fv(normalMatrixLocation, 1, GL_FALSE, glm::value_ptr(normalMatrix));
 
 		glBindBuffer(GL_ARRAY_BUFFER, vbo);
 		glEnableVertexAttribArray(posLoaction);
