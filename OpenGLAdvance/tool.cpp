@@ -163,7 +163,7 @@ unsigned char* DecodeBMP(const char* const& fileContent, int& width, int& height
 	}
 
 	//bgr -> rgb
-	for (int i = 0; i < width*height; ++i)
+	for (int i = 0; i < width*height*3; i += 3)
 	{
 		pixelData[i] = pixelData[i] ^ pixelData[i + 2];
 		pixelData[i+2] = pixelData[i] ^ pixelData[i + 2];
