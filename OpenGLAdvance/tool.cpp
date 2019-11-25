@@ -2,7 +2,6 @@
 #include <stdio.h>
 
 /*****************OpenGL***********************/
-
 GLuint CreateBufferObject(GLenum bufferType, GLsizeiptr size, GLenum usage, void* data /* = nullptr */)
 {
 	GLuint object;
@@ -84,12 +83,42 @@ GLuint CreateGPUProgram(const char* vsShaderPath, const char* fsShaderPath)
 	return program;
 }
 
+GLuint CreateTextureFromFile(const char* const& imagePath)
+{
+	char* pFileContent = LoadFileContent(imagePath);
+	if (pFileContent == nullptr)
+	{
+		printf("load file content failed!\n");
+		return 0;
+	}
 
+	int imageWidth;
+	int imageHeight;
+	unsigned char* pPixelData = DecodeBMP(pFileContent, imageWidth, imageHeight);
+	if (pPixelData == nullptr)
+	{
+		printf("decode file content failed!\n");
+		return 0;
+	}
+
+	GLuint texture;
+	glGenTextures(1, &texture);
+	glBindTexture(GL_TEXTURE_2D, texture);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, imageWidth, imageHeight, 0, GL_RGB, GL_UNSIGNED_BYTE, pPixelData);
+	glBindTexture(GL_TEXTURE_2D, 0);
+
+	delete pFileContent;
+	pFileContent = nullptr;
+
+	return texture;
+}
 
 
 /*****************File***********************/
-
-
 char* LoadFileContent(const char* path)
 {
 	FILE* pFile = fopen(path, "rb");
@@ -106,4 +135,40 @@ char* LoadFileContent(const char* path)
 	}
 	fclose(pFile);
 	return nullptr;
+}
+
+unsigned char* DecodeBMP(const char* const& fileContent, int& width, int& height)
+{
+	if (fileContent == nullptr)
+	{
+		printf("filecontent is nullptr!\n");
+		return nullptr;
+	}
+
+	if (*((unsigned short*)fileContent) != 0x4D42) //²»ÊÇbmpÍ¼Ïñ
+	{
+		printf("current file is not BMP!\n");
+		return nullptr;
+	}
+
+	unsigned char* pixelData = nullptr;
+	int pixelDataOffset = *((int*)(fileContent + 10));
+	width = *((int*)(fileContent + 18));
+	height = *((int*)(fileContent + 22));
+	pixelData = (unsigned char*)fileContent + pixelDataOffset;
+	if (pixelData == nullptr)
+	{
+		printf("pixel data is null\n");
+		return nullptr;
+	}
+
+	//bgr -> rgb
+	for (int i = 0; i < width*height; ++i)
+	{
+		pixelData[i] = pixelData[i] ^ pixelData[i + 2];
+		pixelData[i+2] = pixelData[i] ^ pixelData[i + 2];
+		pixelData[i] = pixelData[i] ^ pixelData[i + 2];
+	}
+
+	return pixelData;
 }

@@ -53,6 +53,12 @@
     <None Include="Res\shader\specular.vs">
       <Filter>Source Files\shader</Filter>
     </None>
+    <None Include="Res\shader\texture.fs">
+      <Filter>Source Files\shader</Filter>
+    </None>
+    <None Include="Res\shader\texture.vs">
+      <Filter>Source Files\shader</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="model.h">

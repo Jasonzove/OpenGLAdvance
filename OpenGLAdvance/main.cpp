@@ -82,8 +82,8 @@ INT WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 
 	//glewInit必须放在wglMakeCurrent之后
 	glewInit();
-	GLuint proram = CreateGPUProgram("Res/shader/Specular.vs", "Res/shader/Specular.fs"); //必须放在glewInit之后
-	GLint posLoaction, texcoordLocation, normalLocation ,MLocation, VLocation, PLocation, normalMatrixLocation;
+	GLuint proram = CreateGPUProgram("Res/shader/texture.vs", "Res/shader/texture.fs"); //必须放在glewInit之后
+	GLint posLoaction, texcoordLocation, normalLocation ,MLocation, VLocation, PLocation, normalMatrixLocation, mainTextureLocation;
 	posLoaction = glGetAttribLocation(proram, "pos");
 	texcoordLocation = glGetAttribLocation(proram, "texcoord");
 	normalLocation = glGetAttribLocation(proram, "normal");
@@ -91,6 +91,7 @@ INT WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	VLocation = glGetUniformLocation(proram, "V");
 	PLocation = glGetUniformLocation(proram, "P");
 	normalMatrixLocation = glGetUniformLocation(proram, "NormalMatrix");
+	mainTextureLocation = glGetUniformLocation(proram, "U_MainTexture");
 
 	unsigned int* indexes = nullptr;
 	int vertexCount = 0;
@@ -102,6 +103,8 @@ INT WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	//obj model -> vbo & ibo
 	GLuint vbo = CreateBufferObject(GL_ARRAY_BUFFER, sizeof(VertexData) * vertexCount, GL_STATIC_DRAW, vertexes);
 	GLuint ibo = CreateBufferObject(GL_ELEMENT_ARRAY_BUFFER, sizeof(unsigned int) * indexCount, GL_STATIC_DRAW, indexes);
+	//texture
+	GLuint mainTexture = CreateTextureFromFile("Res/image/niutou.bmp");
 
 	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 	glEnable(GL_DEPTH_TEST);
@@ -144,6 +147,10 @@ INT WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 		glUniformMatrix4fv(VLocation, 1, GL_FALSE, identity);
 		glUniformMatrix4fv(PLocation, 1, GL_FALSE, glm::value_ptr(projection));
 		glUniformMatrix4fv(normalMatrixLocation, 1, GL_FALSE, glm::value_ptr(normalMatrix));
+
+		//texture
+		glBindTexture(GL_TEXTURE_2D, mainTexture);
+		glUniform1i(mainTextureLocation, 0);
 
 		glBindBuffer(GL_ARRAY_BUFFER, vbo);
 		glEnableVertexAttribArray(posLoaction);
