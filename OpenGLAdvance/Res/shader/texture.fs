@@ -19,7 +19,7 @@ void main()
 
     //diffuse
     vec4 DiffuseLightColor = vec4(1.0,1.0,1.0,1.0);
-    vec4 DiffuseMaterial = vec4(0.2, 0.2, 0.2, 1.0);
+    vec4 DiffuseMaterial = vec4(1.0, 1.0, 1.0, 1.0);
     vec4 diffuseColor = DiffuseLightColor*DiffuseMaterial*max(0.0, dot(L,n)); //max(0.0, dot(L,n):影响光照强度
 
     //specular
@@ -29,5 +29,5 @@ void main()
     vec3 viewDir = normalize(vec3(0.0) - V_WorldPos.xyz); //点到眼睛的方向
     vec4 specularColor = SpecularLightColor*SpecularMaterial*pow(max(0.0, dot(viewDir, reflectDir)), 64);
 
-    gl_FragColor = texture2D(U_MainTexture, V_Texcoord);//ambientColor + diffuseColor + specularColor;
+    gl_FragColor = ambientColor + texture2D(U_MainTexture, V_Texcoord)*(diffuseColor); //纹理的光照不要乱乘，选择性取舍
 }

@@ -104,7 +104,7 @@ INT WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	GLuint vbo = CreateBufferObject(GL_ARRAY_BUFFER, sizeof(VertexData) * vertexCount, GL_STATIC_DRAW, vertexes);
 	GLuint ibo = CreateBufferObject(GL_ELEMENT_ARRAY_BUFFER, sizeof(unsigned int) * indexCount, GL_STATIC_DRAW, indexes);
 	//texture
-	GLuint mainTexture = CreateTextureFromFile("Res/image/niutou.bmp");
+	GLuint mainTexture = CreateTextureFromFile("Res/image/earth.bmp");
 
 	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 	glEnable(GL_DEPTH_TEST);
@@ -125,6 +125,8 @@ INT WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	glm::mat4 projection = glm::perspective(45.0f, 800.0f / 600.0f, 0.1f, 1000.0f);
 	//光照
 	glm::mat4 normalMatrix = glm::inverseTranspose(modelMatrix);
+	//旋转
+	float angle = 0.0f;
 
 	//用循环来保持窗口显示
 	MSG msg;
@@ -141,6 +143,14 @@ INT WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 		}
 
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+		//旋转
+		angle += 0.1;
+		if (angle > 360.f)
+		{
+			angle = 0.0f;
+		}
+		modelMatrix = glm::translate(0.0f, 0.0f, -4.0f)*glm::rotate(angle, 0.0f, 1.0f, 0.0f);
+		normalMatrix = glm::inverseTranspose(modelMatrix);
 
 		glUseProgram(proram);
 		glUniformMatrix4fv(MLocation, 1, GL_FALSE, glm::value_ptr(modelMatrix));
