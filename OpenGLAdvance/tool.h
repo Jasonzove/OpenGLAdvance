@@ -21,3 +21,5 @@ GLuint CreateTextureFromFile(const char* const& imagePath);
 char* LoadFileContent(const char* path);
 
 unsigned char* DecodeBMP(const char* const& fileContent, int& width, int& height);
+
+unsigned char* DecodeDXTData(const char* const& fileContent, int& width, int& height, int& pixelDataSize);

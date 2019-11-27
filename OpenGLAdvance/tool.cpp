@@ -1,5 +1,6 @@
 #include "tool.h"
 #include <stdio.h>
+#include <string.h>
 
 /*****************OpenGL***********************/
 GLuint CreateBufferObject(GLenum bufferType, GLsizeiptr size, GLenum usage, void* data /* = nullptr */)
@@ -94,16 +95,25 @@ GLuint CreateTextureFromFile(const char* const& imagePath)
 
 	int imageWidth = 0;
 	int imageHeight = 0;
+	int pixelDataSize = 0;
+	GLenum srcFormat = GL_RGB;
 	unsigned char* pPixelData = nullptr;
 
 	if (*((unsigned short*)pFileContent) == 0x4D42) //²»ÊÇbmpÍ¼Ïñ
 	{
 		pPixelData = DecodeBMP(pFileContent, imageWidth, imageHeight);
 	}
+	else if(memcmp(pFileContent, "DDS ", 4) == 0)
+	{
+		pPixelData = DecodeDXTData(pFileContent, imageWidth, imageHeight, pixelDataSize);
+		srcFormat = GL_COMPRESSED_RGBA_S3TC_DXT1_EXT;
+	}
 
 	if (pPixelData == nullptr)
 	{
 		printf("decode file content failed!\n");
+		delete pFileContent;
+		pFileContent = nullptr;
 		return 0;
 	}
 
@@ -114,7 +124,18 @@ GLuint CreateTextureFromFile(const char* const& imagePath)
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, imageWidth, imageHeight, 0, GL_RGB, GL_UNSIGNED_BYTE, pPixelData);
+	switch (srcFormat)
+	{
+	case GL_RGB:
+		glTexImage2D(GL_TEXTURE_2D, 0, srcFormat, imageWidth, imageHeight, 0, srcFormat, GL_UNSIGNED_BYTE, pPixelData);
+		break;
+	case GL_COMPRESSED_RGBA_S3TC_DXT1_EXT:
+		glCompressedTexImage2D(GL_TEXTURE_2D, 0, srcFormat, imageWidth, imageHeight, 0, pixelDataSize, pPixelData);
+		break;
+	default:
+		break;
+	}
+
 	glBindTexture(GL_TEXTURE_2D, 0);
 
 	delete pFileContent;
@@ -169,6 +190,29 @@ unsigned char* DecodeBMP(const char* const& fileContent, int& width, int& height
 		pixelData[i+2] = pixelData[i] ^ pixelData[i + 2];
 		pixelData[i] = pixelData[i] ^ pixelData[i + 2];
 	}
+
+	return pixelData;
+}
+
+const unsigned long FORMAT_DTX1 = 0x31545844l; //DTX1:1->X->T->D
+unsigned char* DecodeDXTData(const char* const& fileContent, int& width, int& height, int& pixelDataSize)
+{
+	height = *((unsigned long*)(fileContent + sizeof(unsigned long) * 3));
+	width = *((unsigned long*)(fileContent + sizeof(unsigned long) * 4));
+	pixelDataSize = *((unsigned long*)(fileContent + sizeof(unsigned long) * 5));
+	unsigned long compressFromat;
+	compressFromat = *((unsigned long*)(fileContent + sizeof(unsigned long) * 21));
+	switch (compressFromat)
+	{
+	case FORMAT_DTX1:
+		printf("DTX1\n");
+		break;
+	default:
+		break;
+	}
+
+	unsigned char* pixelData = new unsigned char[pixelDataSize];
+	memcpy(pixelData, fileContent + sizeof(unsigned long) * 10, pixelDataSize);
 
 	return pixelData;
 }
