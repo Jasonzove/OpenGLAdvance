@@ -82,7 +82,7 @@ INT WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 
 	//glewInit必须放在wglMakeCurrent之后
 	glewInit();
-	GLuint proram = CreateGPUProgram("Res/shader/texture.vs", "Res/shader/texture.fs"); //必须放在glewInit之后
+	GLuint proram = CreateGPUProgram("Res/shader/ui.vs", "Res/shader/ui.fs"); //必须放在glewInit之后
 	GLint posLoaction, texcoordLocation, normalLocation ,MLocation, VLocation, PLocation, normalMatrixLocation, mainTextureLocation;
 	posLoaction = glGetAttribLocation(proram, "pos");
 	texcoordLocation = glGetAttribLocation(proram, "texcoord");
@@ -98,7 +98,7 @@ INT WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	int indexCount = 0;
 	
 	//load obj model
-	VertexData* vertexes = LoadObjModel("Res/model/Sphere.obj", &indexes, vertexCount, indexCount);
+	VertexData* vertexes = LoadObjModel("Res/model/Quad.obj", &indexes, vertexCount, indexCount);
 
 	//obj model -> vbo & ibo
 	GLuint vbo = CreateBufferObject(GL_ARRAY_BUFFER, sizeof(VertexData) * vertexCount, GL_STATIC_DRAW, vertexes);
@@ -106,12 +106,16 @@ INT WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	//texture
 	GLuint mainTexture = CreateTextureFromFile("Res/image/150001.dds");
 
-	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+	//glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+	glClearColor(0.1f, 0.4f, 0.6f, 1.0f);
 	glEnable(GL_DEPTH_TEST);
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
 	ShowWindow(hwnd, SW_SHOW);
 	UpdateWindow(hwnd);
 
+	glViewport(0, 0, windowWidth, windowHeight);
 	//数据准备
 	float identity[] = {
 		1,0,0,0,
@@ -123,10 +127,11 @@ INT WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	//model mat:旋转，平移，缩放  //view mat:视口，摄像机漫游 //projection：3d->2d
 	glm::mat4 modelMatrix = glm::translate(0.0f, 0.0f, -4.0f);
 	glm::mat4 projection = glm::perspective(45.0f, 800.0f / 600.0f, 0.1f, 1000.0f);
+	glm::mat4 projection2D = glm::ortho(-0.5f, 0.5f, -0.5f, 0.5f);
 	//光照
 	glm::mat4 normalMatrix = glm::inverseTranspose(modelMatrix);
 	//旋转
-	float angle = 0.0f;
+	//float angle = 0.0f;
 
 	//用循环来保持窗口显示
 	MSG msg;
@@ -144,18 +149,18 @@ INT WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		//旋转
-		angle += 0.1;
-		if (angle > 360.f)
-		{
-			angle = 0.0f;
-		}
-		modelMatrix = glm::translate(0.0f, 0.0f, -4.0f)*glm::rotate(angle, 0.0f, 1.0f, 0.0f);
-		normalMatrix = glm::inverseTranspose(modelMatrix);
+		//angle += 0.1;
+		//if (angle > 360.f)
+		//{
+		//	angle = 0.0f;
+		//}
+		//modelMatrix = glm::translate(0.0f, 0.0f, -4.0f)*glm::rotate(angle, 0.0f, 1.0f, 0.0f);
+		//normalMatrix = glm::inverseTranspose(modelMatrix);
 
 		glUseProgram(proram);
-		glUniformMatrix4fv(MLocation, 1, GL_FALSE, glm::value_ptr(modelMatrix));
+		glUniformMatrix4fv(MLocation, 1, GL_FALSE, identity);
 		glUniformMatrix4fv(VLocation, 1, GL_FALSE, identity);
-		glUniformMatrix4fv(PLocation, 1, GL_FALSE, glm::value_ptr(projection));
+		glUniformMatrix4fv(PLocation, 1, GL_FALSE, glm::value_ptr(projection2D));
 		glUniformMatrix4fv(normalMatrixLocation, 1, GL_FALSE, glm::value_ptr(normalMatrix));
 
 		//texture

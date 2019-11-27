@@ -212,7 +212,7 @@ unsigned char* DecodeDXTData(const char* const& fileContent, int& width, int& he
 	}
 
 	unsigned char* pixelData = new unsigned char[pixelDataSize];
-	memcpy(pixelData, fileContent + sizeof(unsigned long) * 10, pixelDataSize);
+	memcpy(pixelData, fileContent + sizeof(unsigned long) * 32, pixelDataSize);
 
 	return pixelData;
 }
