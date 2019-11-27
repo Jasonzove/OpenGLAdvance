@@ -92,9 +92,15 @@ GLuint CreateTextureFromFile(const char* const& imagePath)
 		return 0;
 	}
 
-	int imageWidth;
-	int imageHeight;
-	unsigned char* pPixelData = DecodeBMP(pFileContent, imageWidth, imageHeight);
+	int imageWidth = 0;
+	int imageHeight = 0;
+	unsigned char* pPixelData = nullptr;
+
+	if (*((unsigned short*)pFileContent) == 0x4D42) //不是bmp图像
+	{
+		pPixelData = DecodeBMP(pFileContent, imageWidth, imageHeight);
+	}
+
 	if (pPixelData == nullptr)
 	{
 		printf("decode file content failed!\n");
@@ -142,12 +148,6 @@ unsigned char* DecodeBMP(const char* const& fileContent, int& width, int& height
 	if (fileContent == nullptr)
 	{
 		printf("filecontent is nullptr!\n");
-		return nullptr;
-	}
-
-	if (*((unsigned short*)fileContent) != 0x4D42) //不是bmp图像
-	{
-		printf("current file is not BMP!\n");
 		return nullptr;
 	}
 
