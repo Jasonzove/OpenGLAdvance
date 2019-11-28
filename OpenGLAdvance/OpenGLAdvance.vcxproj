@@ -142,6 +142,8 @@
     <None Include="Res\shader\texture.vs" />
     <None Include="Res\shader\ui.fs" />
     <None Include="Res\shader\ui.vs" />
+    <None Include="Res\shader\ui_fullscreen.fs" />
+    <None Include="Res\shader\ui_fullscreen.vs" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="model.h" />

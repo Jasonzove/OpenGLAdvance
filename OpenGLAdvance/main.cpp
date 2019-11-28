@@ -83,7 +83,7 @@ INT WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 
 	//glewInit必须放在wglMakeCurrent之后
 	glewInit();
-	GLuint proram = CreateGPUProgram("Res/shader/ui.vs", "Res/shader/ui.fs"); //必须放在glewInit之后
+	GLuint proram = CreateGPUProgram("Res/shader/ui_fullscreen.vs", "Res/shader/ui_fullscreen.fs"); //必须放在glewInit之后
 	GLint posLoaction, texcoordLocation, normalLocation ,MLocation, VLocation, PLocation, normalMatrixLocation, mainTextureLocation;
 	posLoaction = glGetAttribLocation(proram, "pos");
 	texcoordLocation = glGetAttribLocation(proram, "texcoord");
@@ -104,20 +104,20 @@ INT WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	//fov
 	float fov = 45.0f;
 	//cpu版UI铺满屏幕,针对quad.obj
-	float z = 4.0f; //glm::mat4 modelMatrix = glm::translate(0.0f, 0.0f, -4.0f);
-	float halfFov = fov / 2.0f;
-	float radianHalfFov = (halfFov / 180.0)*3.14;
-	float tanHalfFov = sin(radianHalfFov) / cos(radianHalfFov);
-	float y = z * tanHalfFov;
-	float x = y * ((float)windowWidth / (float)windowHeight);
-	vertexes[0].position[0] = -x; //左下角
-	vertexes[0].position[1] = -y;
-	vertexes[1].position[0] = x; //右下角
-	vertexes[1].position[1] = -y;
-	vertexes[2].position[0] = -x; //左上角
-	vertexes[2].position[1] = y;
-	vertexes[3].position[0] = x; //右上角
-	vertexes[3].position[1] = y;
+	//float z = 4.0f; //glm::mat4 modelMatrix = glm::translate(0.0f, 0.0f, -4.0f);
+	//float halfFov = fov / 2.0f;
+	//float radianHalfFov = (halfFov / 180.0)*3.14;
+	//float tanHalfFov = sin(radianHalfFov) / cos(radianHalfFov);
+	//float y = z * tanHalfFov;
+	//float x = y * ((float)windowWidth / (float)windowHeight);
+	//vertexes[0].position[0] = -x; //左下角
+	//vertexes[0].position[1] = -y;
+	//vertexes[1].position[0] = x; //右下角
+	//vertexes[1].position[1] = -y;
+	//vertexes[2].position[0] = -x; //左上角
+	//vertexes[2].position[1] = y;
+	//vertexes[3].position[0] = x; //右上角
+	//vertexes[3].position[1] = y;
 
 
 	//obj model -> vbo & ibo

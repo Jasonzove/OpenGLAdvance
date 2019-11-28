@@ -65,6 +65,12 @@
     <None Include="Res\shader\ui.vs">
       <Filter>Source Files\shader</Filter>
     </None>
+    <None Include="Res\shader\ui_fullscreen.fs">
+      <Filter>Source Files\shader</Filter>
+    </None>
+    <None Include="Res\shader\ui_fullscreen.vs">
+      <Filter>Source Files\shader</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="model.h">
