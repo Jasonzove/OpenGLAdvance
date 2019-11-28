@@ -11,6 +11,6 @@ out vec2 V_Texcoord;
 
 void main()
 {
-	V_Texcoord = texcoord;
+	V_Texcoord = vec2(texcoord.x, 1-texcoord.y);
     gl_Position = P*V*M*vec4(pos, 1.0);
 }

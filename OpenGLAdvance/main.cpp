@@ -80,6 +80,7 @@ INT WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	HGLRC rc = wglCreateContext(dc); //渲染环境
 	wglMakeCurrent(dc, rc); //使渲染环境生效
 
+
 	//glewInit必须放在wglMakeCurrent之后
 	glewInit();
 	GLuint proram = CreateGPUProgram("Res/shader/ui.vs", "Res/shader/ui.fs"); //必须放在glewInit之后
@@ -100,11 +101,30 @@ INT WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	//load obj model
 	VertexData* vertexes = LoadObjModel("Res/model/Quad.obj", &indexes, vertexCount, indexCount);
 
+	//fov
+	float fov = 45.0f;
+	//cpu版UI铺满屏幕,针对quad.obj
+	float z = 4.0f; //glm::mat4 modelMatrix = glm::translate(0.0f, 0.0f, -4.0f);
+	float halfFov = fov / 2.0f;
+	float radianHalfFov = (halfFov / 180.0)*3.14;
+	float tanHalfFov = sin(radianHalfFov) / cos(radianHalfFov);
+	float y = z * tanHalfFov;
+	float x = y * ((float)windowWidth / (float)windowHeight);
+	vertexes[0].position[0] = -x; //左下角
+	vertexes[0].position[1] = -y;
+	vertexes[1].position[0] = x; //右下角
+	vertexes[1].position[1] = -y;
+	vertexes[2].position[0] = -x; //左上角
+	vertexes[2].position[1] = y;
+	vertexes[3].position[0] = x; //右上角
+	vertexes[3].position[1] = y;
+
+
 	//obj model -> vbo & ibo
 	GLuint vbo = CreateBufferObject(GL_ARRAY_BUFFER, sizeof(VertexData) * vertexCount, GL_STATIC_DRAW, vertexes);
 	GLuint ibo = CreateBufferObject(GL_ELEMENT_ARRAY_BUFFER, sizeof(unsigned int) * indexCount, GL_STATIC_DRAW, indexes);
 	//texture
-	GLuint mainTexture = CreateTextureFromFile("Res/image/150001.dds");
+	GLuint mainTexture = CreateTextureFromFile("Res/image/niutou.bmp");
 
 	//glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 	glClearColor(0.1f, 0.4f, 0.6f, 1.0f);
@@ -126,7 +146,7 @@ INT WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 
 	//model mat:旋转，平移，缩放  //view mat:视口，摄像机漫游 //projection：3d->2d
 	glm::mat4 modelMatrix = glm::translate(0.0f, 0.0f, -4.0f);
-	glm::mat4 projection = glm::perspective(45.0f, 800.0f / 600.0f, 0.1f, 1000.0f);
+	glm::mat4 projection = glm::perspective(fov, (float)windowWidth/(float)windowHeight, 0.1f, 1000.0f);
 	glm::mat4 projection2D = glm::ortho(-0.5f, 0.5f, -0.5f, 0.5f);
 	//光照
 	glm::mat4 normalMatrix = glm::inverseTranspose(modelMatrix);
@@ -158,9 +178,9 @@ INT WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 		//normalMatrix = glm::inverseTranspose(modelMatrix);
 
 		glUseProgram(proram);
-		glUniformMatrix4fv(MLocation, 1, GL_FALSE, identity);
+		glUniformMatrix4fv(MLocation, 1, GL_FALSE, glm::value_ptr(modelMatrix));
 		glUniformMatrix4fv(VLocation, 1, GL_FALSE, identity);
-		glUniformMatrix4fv(PLocation, 1, GL_FALSE, glm::value_ptr(projection2D));
+		glUniformMatrix4fv(PLocation, 1, GL_FALSE, glm::value_ptr(projection));
 		glUniformMatrix4fv(normalMatrixLocation, 1, GL_FALSE, glm::value_ptr(normalMatrix));
 
 		//texture
