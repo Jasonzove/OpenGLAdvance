@@ -177,6 +177,10 @@ INT WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 		//modelMatrix = glm::translate(0.0f, 0.0f, -4.0f)*glm::rotate(angle, 0.0f, 1.0f, 0.0f);
 		//normalMatrix = glm::inverseTranspose(modelMatrix);
 
+		//Ότµ¶
+		//glEnable(GL_SCISSOR_TEST);
+		//glScissor(0, 0, windowWidth, 100);
+
 		glUseProgram(proram);
 		glUniformMatrix4fv(MLocation, 1, GL_FALSE, glm::value_ptr(modelMatrix));
 		glUniformMatrix4fv(VLocation, 1, GL_FALSE, identity);
@@ -203,6 +207,8 @@ INT WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 
 		glUseProgram(0);
+		//glDisable(GL_SCISSOR_TEST);
+
 		SwapBuffers(dc);
 	}
 
