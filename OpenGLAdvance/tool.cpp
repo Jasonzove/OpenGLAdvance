@@ -1,6 +1,7 @@
 #include "tool.h"
 #include <stdio.h>
 #include <string.h>
+#include <windows.h>
 
 /*****************OpenGL***********************/
 GLuint CreateBufferObject(GLenum bufferType, GLsizeiptr size, GLenum usage, void* data /* = nullptr */)
@@ -138,6 +139,8 @@ GLuint CreateTextureFromFile(const char* const& imagePath)
 
 	glBindTexture(GL_TEXTURE_2D, 0);
 
+	//SavePixelDataToBMP("Res/image/test_BMP.bmp", pPixelData, imageWidth, imageHeight);
+
 	delete pFileContent;
 	pFileContent = nullptr;
 
@@ -215,4 +218,38 @@ unsigned char* DecodeDXTData(const char* const& fileContent, int& width, int& he
 	memcpy(pixelData, fileContent + sizeof(unsigned long) * 32, pixelDataSize);
 
 	return pixelData;
+}
+
+void SavePixelDataToBMP(const char* const& filePath, unsigned char* const& pixelData, const int& width, const int& height)
+{
+	FILE* pFile = fopen(filePath, "wb");
+	if (pFile)
+	{
+		BITMAPFILEHEADER bfh;
+		memset(&bfh, 0, sizeof(BITMAPFILEHEADER));
+		bfh.bfType = 0x4D42;
+		bfh.bfSize = sizeof(BITMAPFILEHEADER) + sizeof(BITMAPINFOHEADER) + width * height * 3;
+		bfh.bfOffBits = sizeof(BITMAPFILEHEADER) + sizeof(BITMAPINFOHEADER);
+		fwrite(&bfh, sizeof(BITMAPFILEHEADER), 1, pFile);
+
+		BITMAPINFOHEADER bih;
+		memset(&bih, 0, sizeof(BITMAPINFOHEADER));
+		bih.biWidth = width;
+		bih.biHeight = height;
+		bih.biBitCount = 24;
+		bih.biSize = sizeof(BITMAPINFOHEADER);
+		fwrite(&bih, sizeof(BITMAPINFOHEADER), 1, pFile);
+
+		unsigned char temp = 0;
+		for (int i = 0; i < width*height*3; i += 3)
+		{
+			pixelData[i] = pixelData[i] ^ pixelData[i + 2];
+			pixelData[i + 2] = pixelData[i] ^ pixelData[i + 2];
+			pixelData[i] = pixelData[i] ^ pixelData[i + 2];
+		}
+		fwrite(pixelData, width*height * 3, 1, pFile);
+	}
+
+	fclose(pFile);
+	return;
 }

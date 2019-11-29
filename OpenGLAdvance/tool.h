@@ -23,3 +23,5 @@ char* LoadFileContent(const char* path);
 unsigned char* DecodeBMP(const char* const& fileContent, int& width, int& height);
 
 unsigned char* DecodeDXTData(const char* const& fileContent, int& width, int& height, int& pixelDataSize);
+
+void SavePixelDataToBMP(const char* const& filePath, unsigned char* const& pixelData, const int& width, const int& height);
