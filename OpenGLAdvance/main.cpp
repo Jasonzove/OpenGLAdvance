@@ -5,6 +5,7 @@
 #include "Glm/ext.hpp"
 #include "tool.h"
 #include "model.h"
+#include "timer.h"
 
 
 /* 监听用户操作函数;LRESULT(函数返回值类型); CALLBACK(调用方式)
@@ -119,12 +120,17 @@ INT WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	//vertexes[3].position[0] = x; //右上角
 	//vertexes[3].position[1] = y;
 
+	//timer
+	//Timer timer;
+	//timer.Start();
 
 	//obj model -> vbo & ibo
 	GLuint vbo = CreateBufferObject(GL_ARRAY_BUFFER, sizeof(VertexData) * vertexCount, GL_STATIC_DRAW, vertexes);
 	GLuint ibo = CreateBufferObject(GL_ELEMENT_ARRAY_BUFFER, sizeof(unsigned int) * indexCount, GL_STATIC_DRAW, indexes);
 	//texture
 	GLuint mainTexture = CreateTextureFromFile("Res/image/niutou.bmp");
+
+	//printf("time: %f ms\n", timer.GetPassedTime());
 
 	//glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 	glClearColor(0.1f, 0.4f, 0.6f, 1.0f);
