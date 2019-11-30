@@ -147,6 +147,37 @@ GLuint CreateTextureFromFile(const char* const& imagePath)
 	return texture;
 }
 
+void CheckGLError(const char* const& file, const int& line)
+{
+	GLenum error = glGetError();
+	if (error != GL_NO_ERROR)
+	{
+		switch (error)
+		{
+		case GL_INVALID_ENUM:
+			printf("error: GL_INVALID_ENUM! file: %s, line: %d\n", file, line);
+			break;
+		case GL_INVALID_VALUE:
+			printf("error: GL_INVALID_VALUE! file: %s, line: %d\n", file, line);
+			break;
+		case GL_INVALID_OPERATION:
+			printf("error: GL_INVALID_ENUM! file: %s, line: %d\n", file, line);
+			break;
+		case GL_STACK_OVERFLOW:
+			printf("error: GL_INVALID_OPERATION! file: %s, line: %d\n", file, line);
+			break;
+		case GL_STACK_UNDERFLOW:
+			printf("error: GL_STACK_UNDERFLOW! file: %s, line: %d\n", file, line);
+			break;
+		case GL_OUT_OF_MEMORY:
+			printf("error: GL_OUT_OF_MEMORY! file: %s, line: %d\n", file, line);
+			break;
+		default:
+			break;
+		}
+	}
+}
+
 
 /*****************File***********************/
 char* LoadFileContent(const char* path)

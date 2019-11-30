@@ -138,6 +138,8 @@ INT WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
+	//GL_CALL(glBegin(GL_LINEAR));
+
 	ShowWindow(hwnd, SW_SHOW);
 	UpdateWindow(hwnd);
 
