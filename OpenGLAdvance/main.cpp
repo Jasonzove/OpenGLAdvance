@@ -85,8 +85,8 @@ INT WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 
 	//glewInit必须放在wglMakeCurrent之后
 	glewInit();
-	GLuint proram = CreateGPUProgram("Res/shader/point_sprite.vs", "Res/shader/point_sprite.fs"); //必须放在glewInit之后
-	GLint posLoaction, texcoordLocation, normalLocation ,MLocation, VLocation, PLocation, normalMatrixLocation, mainTextureLocation;
+	GLuint proram = CreateGPUProgram("Res/shader/instance.vs", "Res/shader/instance.fs"); //必须放在glewInit之后
+	GLint posLoaction, texcoordLocation, normalLocation ,MLocation, VLocation, PLocation, normalMatrixLocation, mainTextureLocation, offesetLocation;
 	posLoaction = glGetAttribLocation(proram, "pos");
 	texcoordLocation = glGetAttribLocation(proram, "texcoord");
 	normalLocation = glGetAttribLocation(proram, "normal");
@@ -95,17 +95,19 @@ INT WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	PLocation = glGetUniformLocation(proram, "P");
 	normalMatrixLocation = glGetUniformLocation(proram, "NormalMatrix");
 	mainTextureLocation = glGetUniformLocation(proram, "U_MainTexture");
+	offesetLocation = glGetAttribLocation(proram, "offeset");
+	
 
 	unsigned int* indexes = nullptr;
 	int vertexCount = 0;
 	int indexCount = 0;
 	
 	//load obj model
-	VertexData* vertexes = LoadObjModel("Res/model/Quad.obj", &indexes, vertexCount, indexCount);
+	VertexData* vertexes = LoadObjModel("Res/model/niutou.obj", &indexes, vertexCount, indexCount);
 
 	//点精灵移到中心
-	vertexes[0].position[0] = 0.0f;
-	vertexes[0].position[1] = 0.0f;
+	//vertexes[0].position[0] = 0.0f;
+	//vertexes[0].position[1] = 0.0f;
 
 	//fov
 	float fov = 45.0f;
@@ -132,8 +134,16 @@ INT WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	//obj model -> vbo & ibo
 	GLuint vbo = CreateBufferObject(GL_ARRAY_BUFFER, sizeof(VertexData) * vertexCount, GL_STATIC_DRAW, vertexes);
 	GLuint ibo = CreateBufferObject(GL_ELEMENT_ARRAY_BUFFER, sizeof(unsigned int) * indexCount, GL_STATIC_DRAW, indexes);
+	//instance
+	float offeset[] = {
+		-1.0f,0.0f,0.0f,
+		0.0f,0.0f,0.0f,
+		1.0f,0.0f,0.0f
+	};
+	GLuint offesetVbo = CreateBufferObject(GL_ARRAY_BUFFER, sizeof(offeset), GL_STATIC_DRAW, offeset);
+
 	//texture
-	GLuint mainTexture = CreateTextureFromFile("Res/image/camera.dds");
+	GLuint mainTexture = CreateTextureFromFile("Res/image/niutou.bmp");
 
 	//printf("time: %f ms\n", timer.GetPassedTime());
 
@@ -161,7 +171,7 @@ INT WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	};
 
 	//model mat:旋转，平移，缩放  //view mat:视口，摄像机漫游 //projection：3d->2d
-	glm::mat4 modelMatrix = glm::translate(-1.0f, 0.0f, -3.0f)*glm::rotate(30.0f, 0.0f, -1.0f, 0.0f);
+	glm::mat4 modelMatrix = glm::translate(0.0f, 0.0f, -4.0f)*glm::rotate(90.0f, 0.0f, -1.0f, 0.0f)*glm::scale(0.01f,0.01f,0.01f);
 	glm::mat4 projection = glm::perspective(fov, (float)windowWidth/(float)windowHeight, 0.1f, 1000.0f);
 	glm::mat4 projection2D = glm::ortho(-0.5f, 0.5f, -0.5f, 0.5f);
 	//光照
@@ -224,15 +234,23 @@ INT WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 		//glDrawArrays(GL_TRIANGLES, 0, 3);
 		glBindBuffer(GL_ARRAY_BUFFER, 0);
 
+		//instance
+		glBindBuffer(GL_ARRAY_BUFFER, offesetVbo);
+		glEnableVertexAttribArray(offesetLocation);
+		glVertexAttribPointer(offesetLocation, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
+		glBindBuffer(GL_ARRAY_BUFFER, 0);
+		glVertexAttribDivisor(offesetLocation, 1); //每画完一个才偏移
+
 		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo);
-		glDrawElements(GL_POINTS , 1, GL_UNSIGNED_INT, 0);
+		//glDrawElements(GL_TRIANGLES , indexCount, GL_UNSIGNED_INT, 0);
+		glDrawElementsInstanced(GL_TRIANGLES, indexCount, GL_UNSIGNED_INT, 0, 3);
 		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 
 		glUseProgram(0);
 		//glDisable(GL_SCISSOR_TEST);
 
 		//视椎体
-		frustum.Draw(glm::value_ptr(modelMatrix), identity, glm::value_ptr(projection));
+		//frustum.Draw(glm::value_ptr(modelMatrix), identity, glm::value_ptr(projection));
 
 		SwapBuffers(dc);
 	}

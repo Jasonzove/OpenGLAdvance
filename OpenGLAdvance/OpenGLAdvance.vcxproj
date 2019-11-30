@@ -132,6 +132,10 @@
     <ClCompile Include="tool.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="Res\shader\diffuse.fs" />
+    <None Include="Res\shader\diffuse.vs" />
+    <None Include="Res\shader\instance.fs" />
+    <None Include="Res\shader\instance.vs" />
     <None Include="Res\shader\light.fs" />
     <None Include="Res\shader\light.vs" />
     <None Include="Res\shader\obj_model.fs" />
