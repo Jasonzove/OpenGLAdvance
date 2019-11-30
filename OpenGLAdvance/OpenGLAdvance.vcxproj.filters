@@ -74,6 +74,12 @@
     <None Include="Res\shader\ui_fullscreen.vs">
       <Filter>Source Files\shader</Filter>
     </None>
+    <None Include="Res\shader\point_sprite.vs">
+      <Filter>Source Files\shader</Filter>
+    </None>
+    <None Include="Res\shader\point_sprite.fs">
+      <Filter>Source Files\shader</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="model.h">

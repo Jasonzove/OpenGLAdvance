@@ -84,7 +84,7 @@ INT WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 
 	//glewInit必须放在wglMakeCurrent之后
 	glewInit();
-	GLuint proram = CreateGPUProgram("Res/shader/ui_fullscreen.vs", "Res/shader/ui_fullscreen.fs"); //必须放在glewInit之后
+	GLuint proram = CreateGPUProgram("Res/shader/point_sprite.vs", "Res/shader/point_sprite.fs"); //必须放在glewInit之后
 	GLint posLoaction, texcoordLocation, normalLocation ,MLocation, VLocation, PLocation, normalMatrixLocation, mainTextureLocation;
 	posLoaction = glGetAttribLocation(proram, "pos");
 	texcoordLocation = glGetAttribLocation(proram, "texcoord");
@@ -101,6 +101,10 @@ INT WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	
 	//load obj model
 	VertexData* vertexes = LoadObjModel("Res/model/Quad.obj", &indexes, vertexCount, indexCount);
+
+	//点精灵移到中心
+	vertexes[0].position[0] = 0.0f;
+	vertexes[0].position[1] = 0.0f;
 
 	//fov
 	float fov = 45.0f;
@@ -128,7 +132,7 @@ INT WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	GLuint vbo = CreateBufferObject(GL_ARRAY_BUFFER, sizeof(VertexData) * vertexCount, GL_STATIC_DRAW, vertexes);
 	GLuint ibo = CreateBufferObject(GL_ELEMENT_ARRAY_BUFFER, sizeof(unsigned int) * indexCount, GL_STATIC_DRAW, indexes);
 	//texture
-	GLuint mainTexture = CreateTextureFromFile("Res/image/niutou.bmp");
+	GLuint mainTexture = CreateTextureFromFile("Res/image/camera.dds");
 
 	//printf("time: %f ms\n", timer.GetPassedTime());
 
@@ -137,6 +141,9 @@ INT WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	glEnable(GL_DEPTH_TEST);
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	//开启点精灵
+	glEnable(GL_POINT_SPRITE);
+	glEnable(GL_PROGRAM_POINT_SIZE);
 
 	//GL_CALL(glBegin(GL_LINEAR));
 
@@ -211,7 +218,7 @@ INT WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 		glBindBuffer(GL_ARRAY_BUFFER, 0);
 
 		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo);
-		glDrawElements(GL_TRIANGLES, indexCount, GL_UNSIGNED_INT, 0);
+		glDrawElements(GL_POINTS , 1, GL_UNSIGNED_INT, 0);
 		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 
 		glUseProgram(0);
