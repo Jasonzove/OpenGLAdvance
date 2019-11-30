@@ -125,6 +125,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="frustum.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="model.cpp" />
     <ClCompile Include="timer.cpp" />
@@ -147,8 +148,11 @@
     <None Include="Res\shader\ui.vs" />
     <None Include="Res\shader\ui_fullscreen.fs" />
     <None Include="Res\shader\ui_fullscreen.vs" />
+    <None Include="Res\shader\white_color.fs" />
+    <None Include="Res\shader\white_color.vs" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="frustum.h" />
     <ClInclude Include="model.h" />
     <ClInclude Include="timer.h" />
     <ClInclude Include="tool.h" />

@@ -6,6 +6,7 @@
 #include "tool.h"
 #include "model.h"
 #include "timer.h"
+#include "frustum.h"
 
 
 /* 监听用户操作函数;LRESULT(函数返回值类型); CALLBACK(调用方式)
@@ -160,13 +161,19 @@ INT WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	};
 
 	//model mat:旋转，平移，缩放  //view mat:视口，摄像机漫游 //projection：3d->2d
-	glm::mat4 modelMatrix = glm::translate(0.0f, 0.0f, -4.0f);
+	glm::mat4 modelMatrix = glm::translate(-1.0f, 0.0f, -3.0f)*glm::rotate(30.0f, 0.0f, -1.0f, 0.0f);
 	glm::mat4 projection = glm::perspective(fov, (float)windowWidth/(float)windowHeight, 0.1f, 1000.0f);
 	glm::mat4 projection2D = glm::ortho(-0.5f, 0.5f, -0.5f, 0.5f);
 	//光照
 	glm::mat4 normalMatrix = glm::inverseTranspose(modelMatrix);
 	//旋转
 	//float angle = 0.0f;
+
+	//视椎体
+	Frustum frustum;
+	frustum.InitProgram();
+	//frustum.InitPerspective(fov, (float)windowWidth / (float)windowHeight, 0.1f, 4.0f);
+	frustum.InitOrtho(0.5f, 0.5f, 0.5f, 0.5f, 0.1f, 4.0f);
 
 	//用循环来保持窗口显示
 	MSG msg;
@@ -223,6 +230,9 @@ INT WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 
 		glUseProgram(0);
 		//glDisable(GL_SCISSOR_TEST);
+
+		//视椎体
+		frustum.Draw(glm::value_ptr(modelMatrix), identity, glm::value_ptr(projection));
 
 		SwapBuffers(dc);
 	}
