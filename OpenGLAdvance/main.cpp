@@ -163,6 +163,10 @@ INT WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	//texture
 	GLuint mainTexture = CreateTextureFromFile("Res/image/niutou.bmp");
 
+	//FBO
+	GLuint colorBuffer, depthbuffer;
+	GLuint fbo = CreateFrameBufferObject(windowWidth, windowHeight, colorBuffer, depthbuffer);
+
 	//printf("time: %f ms\n", timer.GetPassedTime());
 
 	//glClearColor(0.0f, 0.0f, 0.0f, 1.0f);

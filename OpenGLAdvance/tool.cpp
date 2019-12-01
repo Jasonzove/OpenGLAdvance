@@ -189,6 +189,40 @@ GLuint CreatVAOWithVBO(std::function<void()> settings)
 	return vao;
 }
 
+GLuint CreateFrameBufferObject(const int& width, const int& height, GLuint& colorBuffer, GLuint& depthBuffer)
+{
+	GLuint fbo;
+	glGenFramebuffers(1, &fbo);
+	glBindFramebuffer(GL_FRAMEBUFFER,fbo);
+	//color buffer
+	glGenTextures(1, &colorBuffer);
+	glBindTexture(GL_TEXTURE_2D, colorBuffer);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, nullptr);
+	glBindTexture(GL_TEXTURE_2D, 0);
+	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, colorBuffer, 0);
+	//depth buffer
+	glGenTextures(1, &depthBuffer);
+	glBindTexture(GL_TEXTURE_2D, depthBuffer);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, width, height, 0, GL_DEPTH_COMPONENT, GL_FLOAT, nullptr);
+	glBindTexture(GL_TEXTURE_2D, 0);
+	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, depthBuffer, 0);
+
+	GLenum statu = glCheckFramebufferStatus(GL_FRAMEBUFFER);
+	if (statu != GL_FRAMEBUFFER_COMPLETE)
+	{
+		printf("ccreate fbo failed!\n");
+	}
+	glBindFramebuffer(GL_FRAMEBUFFER,0);
+	return fbo;
+}
 
 
 /*****************File***********************/
