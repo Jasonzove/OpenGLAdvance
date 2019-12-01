@@ -85,7 +85,7 @@ INT WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 
 	//glewInit必须放在wglMakeCurrent之后
 	glewInit();
-	GLuint proram = CreateGPUProgram("Res/shader/mix_light.vs", "Res/shader/mix_light.fs"); //必须放在glewInit之后
+	GLuint proram = CreateGPUProgram("Res/shader/mix_light_MT.vs", "Res/shader/mix_light_MT.fs"); //必须放在glewInit之后
 	GLint posLoaction, texcoordLocation, normalLocation ,MLocation, VLocation, PLocation, normalMatrixLocation, mainTextureLocation, offesetLocation;
 	GLint surfaceColorLocation;
 	posLoaction = glGetAttribLocation(proram, "pos");
@@ -164,7 +164,7 @@ INT WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	GLuint mainTexture = CreateTextureFromFile("Res/image/niutou.bmp");
 
 	//FBO
-	GLuint colorBuffer, depthbuffer;
+	GLuint colorBuffer[2], depthbuffer;
 	GLuint fbo = CreateFrameBufferObject(windowWidth, windowHeight, colorBuffer, depthbuffer);
 
 	//printf("time: %f ms\n", timer.GetPassedTime());
@@ -193,7 +193,7 @@ INT WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	};
 
 	//model mat:旋转，平移，缩放  //view mat:视口，摄像机漫游 //projection：3d->2d
-	glm::mat4 modelMatrix = glm::translate(0.0f, 0.0f, -4.0f)*glm::rotate(90.0f, 0.0f, -1.0f, 0.0f)*glm::scale(0.01f,0.01f,0.01f);
+	glm::mat4 modelMatrix = glm::translate(0.0f, -0.5f, -3.0f)*glm::rotate(90.0f, 0.0f, -1.0f, 0.0f)*glm::scale(0.01f,0.01f,0.01f);
 	glm::mat4 projection = glm::perspective(fov, (float)windowWidth/(float)windowHeight, 0.1f, 1000.0f);
 	glm::mat4 projection2D = glm::ortho(-0.5f, 0.5f, -0.5f, 0.5f);
 	//光照
@@ -249,7 +249,7 @@ INT WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 		glUniformSubroutinesuiv(GL_FRAGMENT_SHADER, 1, &diffuseColorIndex);
 
 		//texture
-		glBindTexture(GL_TEXTURE_2D, colorBuffer);
+		glBindTexture(GL_TEXTURE_2D, mainTexture);
 		glUniform1i(mainTextureLocation, 0);
 
 		//VAO
@@ -271,23 +271,38 @@ INT WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 		glUseProgram(0);
 		//glDisable(GL_SCISSOR_TEST);
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);//0在windows frame中表示屏幕,此处不代表解绑
-		GL_CALL(glClearColor(0.1f, 0.4f, 0.7f, 1.0f));
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 		//看我们自己的FBO的colorBuffer
+		glEnable(GL_SCISSOR_TEST);
+		glScissor(0, 0, windowWidth, windowHeight / 2);
 		glEnable(GL_TEXTURE_2D);
-		glBindTexture(GL_TEXTURE_2D, colorBuffer);
+		glBindTexture(GL_TEXTURE_2D, colorBuffer[0]);
 		glBegin(GL_QUADS);
 		glTexCoord2f(0.0f, 0.0f);
-		glVertex3f(-0.5, -0.5, -4.0);
+		glVertex3f(-1.0, -1.0, -4.0);
 		glTexCoord2f(1.0f, 0.0f);
-		glVertex3f(0.5, -0.5, -4.0);
+		glVertex3f(1.0, -1.0, -4.0);
 		glTexCoord2f(1.0f, 1.0f);
-		glVertex3f(0.5, 0.5, -4.0);
+		glVertex3f(1.0, 1.0, -4.0);
 		glTexCoord2f(0.0f, 1.0f);
-		glVertex3f(-0.5, 0.5, -4.0);
+		glVertex3f(-1.0, 1.0, -4.0);
+		glEnd();
+
+		glScissor(0, windowHeight / 2, windowWidth, windowHeight / 2);
+		glBindTexture(GL_TEXTURE_2D, colorBuffer[1]);
+		glBegin(GL_QUADS);
+		glTexCoord2f(0.0f, 0.0f);
+		glVertex3f(-1.0, -1.0, -4.0);
+		glTexCoord2f(1.0f, 0.0f);
+		glVertex3f(1.0, -1.0, -4.0);
+		glTexCoord2f(1.0f, 1.0f);
+		glVertex3f(1.0, 1.0, -4.0);
+		glTexCoord2f(0.0f, 1.0f);
+		glVertex3f(-1.0, 1.0, -4.0);
 		glEnd();
 		glBindTexture(GL_TEXTURE_2D, 0);
+		glDisable(GL_SCISSOR_TEST);
 		//视椎体
 		//frustum.Draw(glm::value_ptr(modelMatrix), identity, glm::value_ptr(projection));
 

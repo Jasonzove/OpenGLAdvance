@@ -15,7 +15,7 @@ void CheckGLError(const char* const& file, const int& line);
 
 GLuint CreatVAOWithVBO(std::function<void()> settings);
 
-GLuint CreateFrameBufferObject(const int& width, const int& height, GLuint& colorBuffer, GLuint& depthBuffer);
+GLuint CreateFrameBufferObject(const int& width, const int& height, GLuint* const& colorBuffer, GLuint& depthBuffer);
 
 
 /***********File***************/
