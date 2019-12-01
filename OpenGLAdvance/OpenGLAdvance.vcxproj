@@ -154,6 +154,8 @@
     <None Include="Res\shader\ui.vs" />
     <None Include="Res\shader\ui_fullscreen.fs" />
     <None Include="Res\shader\ui_fullscreen.vs" />
+    <None Include="Res\shader\view_depth.fs" />
+    <None Include="Res\shader\view_depth.vs" />
     <None Include="Res\shader\white_color.fs" />
     <None Include="Res\shader\white_color.vs" />
   </ItemGroup>
