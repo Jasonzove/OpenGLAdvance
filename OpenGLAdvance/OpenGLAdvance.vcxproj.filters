@@ -101,6 +101,12 @@
     <None Include="Res\shader\instance.vs">
       <Filter>Source Files\shader</Filter>
     </None>
+    <None Include="Res\shader\mix_light.vs">
+      <Filter>Source Files\shader</Filter>
+    </None>
+    <None Include="Res\shader\mix_light.fs">
+      <Filter>Source Files\shader</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="model.h">

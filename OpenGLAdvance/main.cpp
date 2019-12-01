@@ -85,8 +85,9 @@ INT WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 
 	//glewInit必须放在wglMakeCurrent之后
 	glewInit();
-	GLuint proram = CreateGPUProgram("Res/shader/instance.vs", "Res/shader/instance.fs"); //必须放在glewInit之后
+	GLuint proram = CreateGPUProgram("Res/shader/mix_light.vs", "Res/shader/mix_light.fs"); //必须放在glewInit之后
 	GLint posLoaction, texcoordLocation, normalLocation ,MLocation, VLocation, PLocation, normalMatrixLocation, mainTextureLocation, offesetLocation;
+	GLint surfaceColorLocation;
 	posLoaction = glGetAttribLocation(proram, "pos");
 	texcoordLocation = glGetAttribLocation(proram, "texcoord");
 	normalLocation = glGetAttribLocation(proram, "normal");
@@ -96,7 +97,10 @@ INT WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	normalMatrixLocation = glGetUniformLocation(proram, "NormalMatrix");
 	mainTextureLocation = glGetUniformLocation(proram, "U_MainTexture");
 	offesetLocation = glGetAttribLocation(proram, "offeset");
-	
+	surfaceColorLocation = glGetSubroutineUniformLocation(proram, GL_FRAGMENT_SHADER, "U_SurfaceColor");
+	GLuint ambientColorIndex = glGetSubroutineIndex(proram, GL_FRAGMENT_SHADER, "Ambient");
+	GLuint diffuseColorIndex = glGetSubroutineIndex(proram, GL_FRAGMENT_SHADER, "Diffuse");
+	GLuint specularColorIndex = glGetSubroutineIndex(proram, GL_FRAGMENT_SHADER, "Specular");
 
 	unsigned int* indexes = nullptr;
 	int vertexCount = 0;
@@ -219,6 +223,9 @@ INT WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 		glUniformMatrix4fv(PLocation, 1, GL_FALSE, glm::value_ptr(projection));
 		glUniformMatrix4fv(normalMatrixLocation, 1, GL_FALSE, glm::value_ptr(normalMatrix));
 
+		//shader子函数
+		glUniformSubroutinesuiv(GL_FRAGMENT_SHADER, 1, &ambientColorIndex);
+
 		//texture
 		glBindTexture(GL_TEXTURE_2D, mainTexture);
 		glUniform1i(mainTextureLocation, 0);
@@ -235,15 +242,15 @@ INT WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 		glBindBuffer(GL_ARRAY_BUFFER, 0);
 
 		//instance
-		glBindBuffer(GL_ARRAY_BUFFER, offesetVbo);
-		glEnableVertexAttribArray(offesetLocation);
-		glVertexAttribPointer(offesetLocation, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
-		glBindBuffer(GL_ARRAY_BUFFER, 0);
-		glVertexAttribDivisor(offesetLocation, 1); //每画完一个才偏移
+		//glBindBuffer(GL_ARRAY_BUFFER, offesetVbo);
+		//glEnableVertexAttribArray(offesetLocation);
+		//glVertexAttribPointer(offesetLocation, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
+		//glBindBuffer(GL_ARRAY_BUFFER, 0);
+		//glVertexAttribDivisor(offesetLocation, 1); //每画完一个才偏移
 
 		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo);
-		//glDrawElements(GL_TRIANGLES , indexCount, GL_UNSIGNED_INT, 0);
-		glDrawElementsInstanced(GL_TRIANGLES, indexCount, GL_UNSIGNED_INT, 0, 3);
+		glDrawElements(GL_TRIANGLES , indexCount, GL_UNSIGNED_INT, 0);
+		//glDrawElementsInstanced(GL_TRIANGLES, indexCount, GL_UNSIGNED_INT, 0, 3);
 		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 
 		glUseProgram(0);

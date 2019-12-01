@@ -138,6 +138,8 @@
     <None Include="Res\shader\instance.vs" />
     <None Include="Res\shader\light.fs" />
     <None Include="Res\shader\light.vs" />
+    <None Include="Res\shader\mix_light.fs" />
+    <None Include="Res\shader\mix_light.vs" />
     <None Include="Res\shader\obj_model.fs" />
     <None Include="Res\shader\obj_model.vs" />
     <None Include="Res\shader\point_sprite.fs" />
