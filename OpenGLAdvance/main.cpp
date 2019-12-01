@@ -207,6 +207,10 @@ INT WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	//frustum.InitPerspective(fov, (float)windowWidth / (float)windowHeight, 0.1f, 4.0f);
 	frustum.InitOrtho(0.5f, 0.5f, 0.5f, 0.5f, 0.1f, 4.0f);
 
+	glMatrixMode(GL_MODELVIEW);
+	glLoadIdentity();
+	glMatrixMode(GL_PROJECTION);
+	glLoadMatrixf(glm::value_ptr(projection));
 	//用循环来保持窗口显示
 	MSG msg;
 	while (true)
@@ -220,7 +224,8 @@ INT WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 			TranslateMessage(&msg);
 			DispatchMessage(&msg);
 		}
-
+		glBindFramebuffer(GL_FRAMEBUFFER, fbo); //将图像渲染到自己的FBO而非屏幕
+		GL_CALL(glClearColor(0.4f, 0.7f, 0.1f, 1.0f));
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		//旋转
 		//angle += 0.1;
@@ -234,7 +239,6 @@ INT WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 		//剪刀
 		//glEnable(GL_SCISSOR_TEST);
 		//glScissor(0, 0, windowWidth, 100);
-
 		glUseProgram(proram);
 		glUniformMatrix4fv(MLocation, 1, GL_FALSE, glm::value_ptr(modelMatrix));
 		glUniformMatrix4fv(VLocation, 1, GL_FALSE, identity);
@@ -245,7 +249,7 @@ INT WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 		glUniformSubroutinesuiv(GL_FRAGMENT_SHADER, 1, &diffuseColorIndex);
 
 		//texture
-		glBindTexture(GL_TEXTURE_2D, mainTexture);
+		glBindTexture(GL_TEXTURE_2D, colorBuffer);
 		glUniform1i(mainTextureLocation, 0);
 
 		//VAO
@@ -266,7 +270,24 @@ INT WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 		glBindVertexArray(0);
 		glUseProgram(0);
 		//glDisable(GL_SCISSOR_TEST);
+		glBindFramebuffer(GL_FRAMEBUFFER, 0);//0在windows frame中表示屏幕,此处不代表解绑
+		GL_CALL(glClearColor(0.1f, 0.4f, 0.7f, 1.0f));
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
+		//看我们自己的FBO的colorBuffer
+		glEnable(GL_TEXTURE_2D);
+		glBindTexture(GL_TEXTURE_2D, colorBuffer);
+		glBegin(GL_QUADS);
+		glTexCoord2f(0.0f, 0.0f);
+		glVertex3f(-0.5, -0.5, -4.0);
+		glTexCoord2f(1.0f, 0.0f);
+		glVertex3f(0.5, -0.5, -4.0);
+		glTexCoord2f(1.0f, 1.0f);
+		glVertex3f(0.5, 0.5, -4.0);
+		glTexCoord2f(0.0f, 1.0f);
+		glVertex3f(-0.5, 0.5, -4.0);
+		glEnd();
+		glBindTexture(GL_TEXTURE_2D, 0);
 		//视椎体
 		//frustum.Draw(glm::value_ptr(modelMatrix), identity, glm::value_ptr(projection));
 
