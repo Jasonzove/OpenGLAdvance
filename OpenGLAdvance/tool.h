@@ -1,5 +1,6 @@
 #pragma once
 #include "glew.h"
+#include <functional>
 
 /***********OpenGL***************/
 GLuint CreateBufferObject(GLenum bufferType, GLsizeiptr size, GLenum usage, void* data = nullptr);
@@ -12,8 +13,7 @@ GLuint CreateTextureFromFile(const char* const& imagePath);
 
 void CheckGLError(const char* const& file, const int& line);
 
-
-
+GLuint CreatVAOWithVBO(std::function<void()> settings);
 
 
 /***********File***************/

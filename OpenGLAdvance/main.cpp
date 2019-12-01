@@ -136,7 +136,21 @@ INT WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	//timer.Start();
 
 	//obj model -> vbo & ibo
-	GLuint vbo = CreateBufferObject(GL_ARRAY_BUFFER, sizeof(VertexData) * vertexCount, GL_STATIC_DRAW, vertexes);
+	//vao:本身只是对vbo以及vbo设置的封装，不能替代vbo本身的作用
+	GLuint vao = CreatVAOWithVBO([&]()->void {
+		GLuint vbo = CreateBufferObject(GL_ARRAY_BUFFER, sizeof(VertexData) * vertexCount, GL_STATIC_DRAW, vertexes);
+		glBindBuffer(GL_ARRAY_BUFFER, vbo);
+		glEnableVertexAttribArray(posLoaction);
+		glVertexAttribPointer(posLoaction, 3, GL_FLOAT, GL_FALSE, sizeof(VertexData), (void*)0);
+		glEnableVertexAttribArray(texcoordLocation);
+		glVertexAttribPointer(texcoordLocation, 2, GL_FLOAT, GL_FALSE, sizeof(VertexData), (void*)(3 * sizeof(float)));
+		glEnableVertexAttribArray(normalLocation);
+		glVertexAttribPointer(normalLocation, 3, GL_FLOAT, GL_FALSE, sizeof(VertexData), (void*)(5 * sizeof(float)));
+
+		//glDrawArrays(GL_TRIANGLES, 0, 3);
+		glBindBuffer(GL_ARRAY_BUFFER, 0);
+	});
+
 	GLuint ibo = CreateBufferObject(GL_ELEMENT_ARRAY_BUFFER, sizeof(unsigned int) * indexCount, GL_STATIC_DRAW, indexes);
 	//instance
 	float offeset[] = {
@@ -224,22 +238,14 @@ INT WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 		glUniformMatrix4fv(normalMatrixLocation, 1, GL_FALSE, glm::value_ptr(normalMatrix));
 
 		//shader子函数
-		glUniformSubroutinesuiv(GL_FRAGMENT_SHADER, 1, &ambientColorIndex);
+		glUniformSubroutinesuiv(GL_FRAGMENT_SHADER, 1, &diffuseColorIndex);
 
 		//texture
 		glBindTexture(GL_TEXTURE_2D, mainTexture);
 		glUniform1i(mainTextureLocation, 0);
 
-		glBindBuffer(GL_ARRAY_BUFFER, vbo);
-		glEnableVertexAttribArray(posLoaction);
-		glVertexAttribPointer(posLoaction, 3, GL_FLOAT, GL_FALSE, sizeof(VertexData), (void*)0);
-		glEnableVertexAttribArray(texcoordLocation);
-		glVertexAttribPointer(texcoordLocation, 2, GL_FLOAT, GL_FALSE, sizeof(VertexData), (void*)(3 * sizeof(float)));
-		glEnableVertexAttribArray(normalLocation);
-		glVertexAttribPointer(normalLocation, 3, GL_FLOAT, GL_FALSE, sizeof(VertexData), (void*)(5 * sizeof(float)));
-		
-		//glDrawArrays(GL_TRIANGLES, 0, 3);
-		glBindBuffer(GL_ARRAY_BUFFER, 0);
+		//VAO
+		glBindVertexArray(vao);
 
 		//instance
 		//glBindBuffer(GL_ARRAY_BUFFER, offesetVbo);
@@ -253,6 +259,7 @@ INT WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 		//glDrawElementsInstanced(GL_TRIANGLES, indexCount, GL_UNSIGNED_INT, 0, 3);
 		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 
+		glBindVertexArray(0);
 		glUseProgram(0);
 		//glDisable(GL_SCISSOR_TEST);
 

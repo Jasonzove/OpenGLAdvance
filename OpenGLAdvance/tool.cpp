@@ -178,6 +178,18 @@ void CheckGLError(const char* const& file, const int& line)
 	}
 }
 
+GLuint CreatVAOWithVBO(std::function<void()> settings)
+{
+	GLuint vao; //vao不能替代vbo，只是对其的封装
+	glGenVertexArrays(1, &vao);
+	glBindVertexArray(vao);
+	settings();
+	glBindVertexArray(0);
+
+	return vao;
+}
+
+
 
 /*****************File***********************/
 char* LoadFileContent(const char* path)
