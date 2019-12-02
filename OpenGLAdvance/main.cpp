@@ -85,7 +85,7 @@ INT WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 
 	//glewInit必须放在wglMakeCurrent之后
 	glewInit();
-	GLuint proram = CreateGPUProgram("Res/shader/view_depth.vs", "Res/shader/view_depth.fs"); //必须放在glewInit之后
+	GLuint proram = CreateGPUProgram("Res/shader/texture.vs", "Res/shader/texture.fs"); //必须放在glewInit之后
 	GLint posLoaction, texcoordLocation, normalLocation ,MLocation, VLocation, PLocation, normalMatrixLocation, mainTextureLocation, offesetLocation;
 	GLint surfaceColorLocation;
 	posLoaction = glGetAttribLocation(proram, "pos");
@@ -193,7 +193,7 @@ INT WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	};
 
 	//model mat:旋转，平移，缩放  //view mat:视口，摄像机漫游 //projection：3d->2d
-	glm::mat4 modelMatrix = glm::translate(0.0f, -0.5f, -2.0f)*glm::rotate(90.0f, 0.0f, -1.0f, 0.0f)*glm::scale(0.01f,0.01f,0.01f);
+	glm::mat4 modelMatrix = glm::translate(0.0f, -0.5f, -1.5f)*glm::rotate(90.0f, 0.0f, -1.0f, 0.0f)*glm::scale(0.01f,0.01f,0.01f);
 	glm::mat4 projection = glm::perspective(fov, (float)windowWidth/(float)windowHeight, 0.1f, 1000.0f);
 	glm::mat4 projection2D = glm::ortho(-0.5f, 0.5f, -0.5f, 0.5f);
 	//光照
@@ -207,10 +207,56 @@ INT WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	//frustum.InitPerspective(fov, (float)windowWidth / (float)windowHeight, 0.1f, 4.0f);
 	frustum.InitOrtho(0.5f, 0.5f, 0.5f, 0.5f, 0.1f, 4.0f);
 
-	glMatrixMode(GL_MODELVIEW);
-	glLoadIdentity();
-	glMatrixMode(GL_PROJECTION);
-	glLoadMatrixf(glm::value_ptr(projection));
+
+
+	//full screen
+	GLuint fcproram = CreateGPUProgram("Res/shader/ui_fullscreen.vs", "Res/shader/render_depth.fs"); //必须放在glewInit之后
+	GLint fcposLoaction, fctexcoordLocation, fcMLocation, fcVLocation, fcPLocation, fcmainTextureLocation;
+	fcposLoaction = glGetAttribLocation(fcproram, "pos");
+	fctexcoordLocation = glGetAttribLocation(fcproram, "texcoord");
+	fcMLocation = glGetUniformLocation(fcproram, "M");
+	fcVLocation = glGetUniformLocation(fcproram, "V");
+	fcPLocation = glGetUniformLocation(fcproram, "P");
+	fcmainTextureLocation = glGetUniformLocation(fcproram, "U_MainTexture");
+	unsigned int* fcindexes = nullptr;
+	int fcvertexCount = 0;
+	int fcindexCount = 0;
+	VertexData* fcvertexes = LoadObjModel("Res/model/Quad.obj", &fcindexes, fcvertexCount, fcindexCount);
+	GLuint fcvao = CreatVAOWithVBO([&]()->void {
+		GLuint fcvbo = CreateBufferObject(GL_ARRAY_BUFFER, sizeof(VertexData) * fcvertexCount, GL_STATIC_DRAW, fcvertexes);
+		glBindBuffer(GL_ARRAY_BUFFER, fcvbo);
+		glEnableVertexAttribArray(fcposLoaction);
+		glVertexAttribPointer(fcposLoaction, 3, GL_FLOAT, GL_FALSE, sizeof(VertexData), (void*)0);
+		glEnableVertexAttribArray(fctexcoordLocation);
+		glVertexAttribPointer(fctexcoordLocation, 2, GL_FLOAT, GL_FALSE, sizeof(VertexData), (void*)(3 * sizeof(float)));
+
+		//glDrawArrays(GL_TRIANGLES, 0, 3);
+		glBindBuffer(GL_ARRAY_BUFFER, 0);
+	});
+	GLuint fcibo = CreateBufferObject(GL_ELEMENT_ARRAY_BUFFER, sizeof(unsigned int) * fcindexCount, GL_STATIC_DRAW, fcindexes);
+	auto what = [&]()->void {
+
+		glUseProgram(fcproram);
+		//texture
+		glBindTexture(GL_TEXTURE_2D, colorBuffer[0]);
+		glUniform1i(fcmainTextureLocation, 0);
+
+		//VAO
+		glBindVertexArray(fcvao);
+
+		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, fcibo);
+		glDrawElements(GL_TRIANGLES, fcindexCount, GL_UNSIGNED_INT, 0);
+		//glDrawElementsInstanced(GL_TRIANGLES, indexCount, GL_UNSIGNED_INT, 0, 3);
+		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+
+		glBindVertexArray(0);
+		glUseProgram(0);
+	};
+
+	//glMatrixMode(GL_MODELVIEW);
+	//glLoadIdentity();
+	//glMatrixMode(GL_PROJECTION);
+	//glLoadMatrixf(glm::value_ptr(projection));
 	//用循环来保持窗口显示
 	MSG msg;
 	while (true)
@@ -224,7 +270,7 @@ INT WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 			TranslateMessage(&msg);
 			DispatchMessage(&msg);
 		}
-		//glBindFramebuffer(GL_FRAMEBUFFER, fbo); //将图像渲染到自己的FBO而非屏幕
+		glBindFramebuffer(GL_FRAMEBUFFER, fbo); //将图像渲染到自己的FBO而非屏幕
 		//GL_CALL(glClearColor(0.4f, 0.7f, 0.1f, 1.0f));
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		//旋转
@@ -267,9 +313,9 @@ INT WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 		glBindVertexArray(0);
 		glUseProgram(0);
 
-		//glBindFramebuffer(GL_FRAMEBUFFER, 0);//0在windows frame中表示屏幕,此处不代表解绑
-		//glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
+		glBindFramebuffer(GL_FRAMEBUFFER, 0);//0在windows frame中表示屏幕,此处不代表解绑
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+		what();
 		//看我们自己的FBO的colorBuffer
 		//glEnable(GL_SCISSOR_TEST);
 		//glScissor(0, 0, windowWidth, windowHeight / 2);
