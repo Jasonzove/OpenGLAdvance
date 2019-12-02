@@ -238,7 +238,7 @@ INT WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 
 		glUseProgram(fcproram);
 		//texture
-		glBindTexture(GL_TEXTURE_2D, colorBuffer[0]);
+		glBindTexture(GL_TEXTURE_2D, depthbuffer);
 		glUniform1i(fcmainTextureLocation, 0);
 
 		//VAO
@@ -253,10 +253,10 @@ INT WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 		glUseProgram(0);
 	};
 
-	//glMatrixMode(GL_MODELVIEW);
-	//glLoadIdentity();
-	//glMatrixMode(GL_PROJECTION);
-	//glLoadMatrixf(glm::value_ptr(projection));
+	glMatrixMode(GL_MODELVIEW);
+	glLoadIdentity();
+	glMatrixMode(GL_PROJECTION);
+	glLoadMatrixf(glm::value_ptr(projection));
 	//用循环来保持窗口显示
 	MSG msg;
 	while (true)
@@ -320,7 +320,7 @@ INT WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 		//glEnable(GL_SCISSOR_TEST);
 		//glScissor(0, 0, windowWidth, windowHeight / 2);
 		//glEnable(GL_TEXTURE_2D);
-		//glBindTexture(GL_TEXTURE_2D, colorBuffer[0]);
+		//glBindTexture(GL_TEXTURE_2D, depthbuffer);
 		//glBegin(GL_QUADS);
 		//glTexCoord2f(0.0f, 0.0f);
 		//glVertex3f(-1.0, -1.0, -4.0);
