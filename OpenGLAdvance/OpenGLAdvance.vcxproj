@@ -125,11 +125,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="frustum.cpp" />
     <ClCompile Include="main.cpp" />
-    <ClCompile Include="model.cpp" />
-    <ClCompile Include="timer.cpp" />
-    <ClCompile Include="tool.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Res\shader\diffuse.fs" />
@@ -159,12 +155,6 @@
     <None Include="Res\shader\view_depth.vs" />
     <None Include="Res\shader\white_color.fs" />
     <None Include="Res\shader\white_color.vs" />
-  </ItemGroup>
-  <ItemGroup>
-    <ClInclude Include="frustum.h" />
-    <ClInclude Include="model.h" />
-    <ClInclude Include="timer.h" />
-    <ClInclude Include="tool.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
