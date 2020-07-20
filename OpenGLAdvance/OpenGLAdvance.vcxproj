@@ -80,6 +80,7 @@
     </ClCompile>
     <Link>
       <AdditionalDependencies>opengl32.lib;glew32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <SubSystem>Windows</SubSystem>
     </Link>
     <PostBuildEvent>
       <Command>editbin /subsystem:console $(OutDir)$(ProjectName).exe</Command>
@@ -94,6 +95,7 @@
     </ClCompile>
     <Link>
       <AdditionalDependencies>glew32.lib;opengl32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <SubSystem>Windows</SubSystem>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -126,35 +128,10 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="utils.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="Res\shader\diffuse.fs" />
-    <None Include="Res\shader\diffuse.vs" />
-    <None Include="Res\shader\instance.fs" />
-    <None Include="Res\shader\instance.vs" />
-    <None Include="Res\shader\light.fs" />
-    <None Include="Res\shader\light.vs" />
-    <None Include="Res\shader\mix_light.fs" />
-    <None Include="Res\shader\mix_light.vs" />
-    <None Include="Res\shader\obj_model.fs" />
-    <None Include="Res\shader\obj_model.vs" />
-    <None Include="Res\shader\point_sprite.fs" />
-    <None Include="Res\shader\point_sprite.vs" />
-    <None Include="Res\shader\render_depth.fs" />
-    <None Include="Res\shader\sample.fs" />
-    <None Include="Res\shader\sample.vs" />
-    <None Include="Res\shader\specular.fs" />
-    <None Include="Res\shader\specular.vs" />
-    <None Include="Res\shader\texture.fs" />
-    <None Include="Res\shader\texture.vs" />
-    <None Include="Res\shader\ui.fs" />
-    <None Include="Res\shader\ui.vs" />
-    <None Include="Res\shader\ui_fullscreen.fs" />
-    <None Include="Res\shader\ui_fullscreen.vs" />
-    <None Include="Res\shader\view_depth.fs" />
-    <None Include="Res\shader\view_depth.vs" />
-    <None Include="Res\shader\white_color.fs" />
-    <None Include="Res\shader\white_color.vs" />
+    <ClInclude Include="utils.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
