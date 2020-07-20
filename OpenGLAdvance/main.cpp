@@ -51,11 +51,11 @@ INT WINAPI WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _
 	HGLRC rc = wglCreateContext(dc);
 	wglMakeCurrent(dc, rc);
 	glClearColor(41.0f / 255.0f, 71.0f / 255.0f, 121.0f / 255.0f, 1.0f);
-	//glMatrixMode(GL_PROJECTION);
-	//glLoadIdentity();
-	//gluPerspective(45.0f, 800.0f / 600.0f, 0.1f, 1000.0f);
-	//glMatrixMode(GL_MODELVIEW);
-	//glLoadIdentity();
+	glMatrixMode(GL_PROJECTION);
+	glLoadIdentity();
+	gluPerspective(45.0f, 800.0f / 600.0f, 0.1f, 1000.0f);
+	glMatrixMode(GL_MODELVIEW);
+	glLoadIdentity();
 
 	ShowWindow(hwnd, SW_SHOW);
 	UpdateWindow(hwnd);
@@ -73,11 +73,11 @@ INT WINAPI WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _
 			DispatchMessage(&msg);
 		}
 		glClear(GL_COLOR_BUFFER_BIT);
-		//glBegin(GL_TRIANGLES);
-		//glVertex3f(0, 0, -100.0f);
-		//glVertex3f(10, 0, -100.0f);
-		//glVertex3f(0, 10, -100.0f);
-		//glEnd();
+		glBegin(GL_TRIANGLES);
+		glVertex3f(0, 0, -100.0f);
+		glVertex3f(10, 0, -100.0f);
+		glVertex3f(0, 10, -100.0f);
+		glEnd();
 		SwapBuffers(dc);
 	}
 	return 0;
