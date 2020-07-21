@@ -4,16 +4,13 @@
 #include "Glm/glm.hpp"
 
 #include "utils.h"
+#include "objmodel.h"
 
 
 //#pragma  comment(lib, "opengl32.lib")
 #pragma  comment(lib, "glew32.lib")
 
-typedef struct VertexData
-{
-	float vertex[3];
-	float color[4];
-};
+ObjModel objModel;
 
 LRESULT CALLBACK GLWindowProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 {
@@ -71,35 +68,15 @@ INT WINAPI WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _
 	VLocation = glGetUniformLocation(program, "V");
 	PLocation = glGetUniformLocation(program, "P");
 
-	VertexData vertexData[3];
-	vertexData[0].vertex[0] = 0.0;
-	vertexData[0].vertex[1] = 0.0;
-	vertexData[0].vertex[2] = -100.0;
-	vertexData[0].color[0] = 1.0;
-	vertexData[0].color[1] = 1.0;
-	vertexData[0].color[2] = 1.0;
-	vertexData[0].color[3] = 1.0;
-
-	vertexData[1].vertex[0] = 10.0;
-	vertexData[1].vertex[1] = 0.0;
-	vertexData[1].vertex[2] = -100.0;
-	vertexData[1].color[0] = 1.0;
-	vertexData[1].color[1] = 1.0;
-	vertexData[1].color[2] = 1.0;
-	vertexData[1].color[3] = 1.0;
-
-	vertexData[2].vertex[0] = 0.0;
-	vertexData[2].vertex[1] = 10.0;
-	vertexData[2].vertex[2] = -100.0;
-	vertexData[2].color[0] = 1.0;
-	vertexData[2].color[1] = 1.0;
-	vertexData[2].color[2] = 1.0;
-	vertexData[2].color[3] = 1.0;
-
-	GLuint vbo = CreateGPUBufferObject(GL_ARRAY_BUFFER, sizeof(VertexData) * 3, GL_STATIC_DRAW, vertexData);
-
-	unsigned int indexes[] = { 0,1,2 };
-	GLuint ebo = CreateGPUBufferObject(GL_ELEMENT_ARRAY_BUFFER, sizeof(unsigned int) * 3, GL_STATIC_DRAW,indexes);
+	//obj model
+	int* indexes = nullptr;
+	int vertexCount = 0;
+	int indexCount = 0;
+	VertexData* vertexData = nullptr;
+	vertexData = objModel.LoadObjModel("./res/model/Quad.obj", &indexes, vertexCount, indexCount);
+	//vbo, ebo
+	GLuint vbo = CreateGPUBufferObject(GL_ARRAY_BUFFER, sizeof(VertexData)*vertexCount, GL_STATIC_DRAW, vertexData);
+	GLuint ebo = CreateGPUBufferObject(GL_ELEMENT_ARRAY_BUFFER, sizeof(int)*indexCount, GL_STATIC_DRAW, indexes);
 
 	glClearColor(41.0f / 255.0f, 71.0f / 255.0f, 121.0f / 255.0f, 1.0f);
 
@@ -127,27 +104,27 @@ INT WINAPI WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _
 			DispatchMessage(&msg);
 		}
 		glClear(GL_COLOR_BUFFER_BIT);
-		glUseProgram(program);
+		//glUseProgram(program);
 
-		glUniformMatrix4fv(MLocation, 1, GL_FALSE, idetity);
-		glUniformMatrix4fv(VLocation, 1, GL_FALSE, idetity);
-		glUniformMatrix4fv(PLocation, 1, GL_FALSE, glm::value_ptr(projectionMat));
+		//glUniformMatrix4fv(MLocation, 1, GL_FALSE, idetity);
+		//glUniformMatrix4fv(VLocation, 1, GL_FALSE, idetity);
+		//glUniformMatrix4fv(PLocation, 1, GL_FALSE, glm::value_ptr(projectionMat));
 
-		glBindBuffer(GL_ARRAY_BUFFER, vbo);
-		glEnableVertexAttribArray(posLocation);
-		glVertexAttribPointer(posLocation, 3, GL_FLOAT, GL_FALSE, sizeof(VertexData), (void*)NULL);
+		//glBindBuffer(GL_ARRAY_BUFFER, vbo);
+		//glEnableVertexAttribArray(posLocation);
+		//glVertexAttribPointer(posLocation, 3, GL_FLOAT, GL_FALSE, sizeof(VertexData), (void*)NULL);
 
-		glEnableVertexAttribArray(colorLocation);
-		glVertexAttribPointer(colorLocation, 4, GL_FLOAT, GL_FALSE, sizeof(VertexData), (void*)(sizeof(float)*3));
-		
-		//glDrawArrays(GL_TRIANGLES, 0, 3);
-		glBindBuffer(GL_ARRAY_BUFFER, 0);
+		//glEnableVertexAttribArray(colorLocation);
+		//glVertexAttribPointer(colorLocation, 4, GL_FLOAT, GL_FALSE, sizeof(VertexData), (void*)(sizeof(float) * 3));
 
-		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo);
-		glDrawElements(GL_TRIANGLES, 3, GL_UNSIGNED_INT, 0);
-		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+		////glDrawArrays(GL_TRIANGLES, 0, 3);
+		//glBindBuffer(GL_ARRAY_BUFFER, 0);
 
-		glUseProgram(0);
+		//glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo);
+		//glDrawElements(GL_TRIANGLES, 3, GL_UNSIGNED_INT, 0);
+		//glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+
+		//glUseProgram(0);
 		SwapBuffers(dc);
 	}
 	return 0;
