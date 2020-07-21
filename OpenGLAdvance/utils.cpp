@@ -51,3 +51,15 @@ GLuint CreateGPUProgram(const char * const & vsShaderPath, const char * const & 
 	return program;
 }
 
+GLuint CreateGPUBufferObject(GLenum targetType, GLsizeiptr size, GLenum usage, const void * data)
+{
+	GLuint object;
+	glGenBuffers(1, &object);
+	glBindBuffer(targetType, object);
+	glBufferData(targetType, size, data, usage);
+	glBindBuffer(targetType, 0);
+	return object;
+}
+
+
+
