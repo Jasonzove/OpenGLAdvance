@@ -61,9 +61,10 @@ INT WINAPI WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _
 	glewInit(); //glew初始化，必须放在wglMakeCurrent之后
 
 	GLuint program = CreateGPUProgram("./Res/shader/first_trangle.vs", "./Res/shader/first_trangle.fs");
-	GLuint posLocation, colorLocation, MLocation, VLocation, PLocation;
+	GLuint posLocation, texcoordLocation, normalLocation, MLocation, VLocation, PLocation;
 	posLocation = glGetAttribLocation(program, "pos");
-	colorLocation = glGetAttribLocation(program, "color");
+	texcoordLocation = glGetAttribLocation(program, "texcoord");
+	normalLocation = glGetAttribLocation(program, "normal");
 	MLocation = glGetUniformLocation(program, "M");
 	VLocation = glGetUniformLocation(program, "V");
 	PLocation = glGetUniformLocation(program, "P");
@@ -73,7 +74,7 @@ INT WINAPI WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _
 	int vertexCount = 0;
 	int indexCount = 0;
 	VertexData* vertexData = nullptr;
-	vertexData = objModel.LoadObjModel("./res/model/Quad.obj", &indexes, vertexCount, indexCount);
+	vertexData = objModel.LoadObjModel("./res/model/Sphere.obj", &indexes, vertexCount, indexCount);
 	//vbo, ebo
 	GLuint vbo = CreateGPUBufferObject(GL_ARRAY_BUFFER, sizeof(VertexData)*vertexCount, GL_STATIC_DRAW, vertexData);
 	GLuint ebo = CreateGPUBufferObject(GL_ELEMENT_ARRAY_BUFFER, sizeof(int)*indexCount, GL_STATIC_DRAW, indexes);
@@ -119,6 +120,10 @@ INT WINAPI WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _
 		glBindBuffer(GL_ARRAY_BUFFER, vbo);
 		glEnableVertexAttribArray(posLocation);
 		glVertexAttribPointer(posLocation, 3, GL_FLOAT, GL_FALSE, sizeof(VertexData), (void*)NULL);
+		glEnableVertexAttribArray(texcoordLocation);
+		glVertexAttribPointer(texcoordLocation, 2, GL_FLOAT, GL_FALSE, sizeof(VertexData), (void*)(3*sizeof(float)));
+		glEnableVertexAttribArray(normalLocation);
+		glVertexAttribPointer(normalLocation, 3, GL_FLOAT, GL_FALSE, sizeof(VertexData), (void*)(5 * sizeof(float)));
 		glBindBuffer(GL_ARRAY_BUFFER, 0);
 
 		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo);
