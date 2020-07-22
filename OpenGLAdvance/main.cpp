@@ -74,7 +74,7 @@ INT WINAPI WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _
 	int vertexCount = 0;
 	int indexCount = 0;
 	VertexData* vertexData = nullptr;
-	vertexData = objModel.LoadObjModel("./res/model/Sphere.obj", &indexes, vertexCount, indexCount);
+	vertexData = objModel.LoadObjModel("./res/model/niutou.obj", &indexes, vertexCount, indexCount);
 	//vbo, ebo
 	GLuint vbo = CreateGPUBufferObject(GL_ARRAY_BUFFER, sizeof(VertexData)*vertexCount, GL_STATIC_DRAW, vertexData);
 	GLuint ebo = CreateGPUBufferObject(GL_ELEMENT_ARRAY_BUFFER, sizeof(int)*indexCount, GL_STATIC_DRAW, indexes);
@@ -92,10 +92,10 @@ INT WINAPI WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _
 		0,0,0,1
 	};
 	float model[] = {
-	1,0,0,0,
-	0,1,0,0,
-	0,0,1,0,
-	0,0,-2.0,1
+	0.5,0,0,0,
+	0,0.5,0,0,
+	0,0,0.5,0,
+	0,-20,-100.0,1
 	};
 
 	MSG msg;
