@@ -5,7 +5,8 @@
 
 #include "utils.h"
 #include "objmodel.h"
-
+#include "resource.h"
+#include "shader_coder.h"
 
 //#pragma  comment(lib, "opengl32.lib")
 #pragma  comment(lib, "glew32.lib")
@@ -60,7 +61,8 @@ INT WINAPI WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _
 	wglMakeCurrent(dc, rc);
 	glewInit(); //glew初始化，必须放在wglMakeCurrent之后
 
-	GLuint program = CreateGPUProgram("./Res/shader/first_trangle.vs", "./Res/shader/first_trangle.fs");
+	GLuint program = CreateGPUProgram(ShaderCoder::Get(IDR_SHADER_first_triangles_vs).c_str(),
+		ShaderCoder::Get(IDR_SHADER_first_triangles_fs).c_str());
 	GLuint posLocation, texcoordLocation, normalLocation, MLocation, VLocation, PLocation;
 	posLocation = glGetAttribLocation(program, "pos");
 	texcoordLocation = glGetAttribLocation(program, "texcoord");

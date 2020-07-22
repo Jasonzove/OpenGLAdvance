@@ -1,3 +1,4 @@
+#include <windows.h>
 #include <stdio.h>
 #include "utils.h"
 
@@ -29,14 +30,12 @@ char* LoadFileContent(const char* const& filePath)
 	return buffer;
 }
 
-GLuint CreateGPUProgram(const char * const & vsShaderPath, const char * const & fsShaderPath)
+GLuint CreateGPUProgram(const char * const & vsShaderCode, const char * const & fsShaderCode)
 {
 	GLuint vsShader = glCreateShader(GL_VERTEX_SHADER);
 	GLuint fsShader = glCreateShader(GL_FRAGMENT_SHADER);
-	const char* vsCode = LoadFileContent(vsShaderPath);
-	const char* fsCode = LoadFileContent(fsShaderPath);
-	glShaderSource(vsShader, 1, &vsCode, nullptr); //传入显卡
-	glShaderSource(fsShader, 1, &fsCode, nullptr);
+	glShaderSource(vsShader, 1, &vsShaderCode, nullptr); //传入显卡
+	glShaderSource(fsShader, 1, &fsShaderCode, nullptr);
 	glCompileShader(vsShader);
 	glCompileShader(fsShader);
 	GLuint program = glCreateProgram();
@@ -61,5 +60,74 @@ GLuint CreateGPUBufferObject(GLenum targetType, GLsizeiptr size, GLenum usage, c
 	return object;
 }
 
+void SavePixelDataToBMP(
+	const char* const& filePath,
+	unsigned char* const& pixelData,
+	const int& width,
+	const int& height)
+{
+	FILE* pFile;
+	fopen_s(&pFile, filePath, "wb");
+	if (pFile)
+	{
+		BITMAPFILEHEADER bfh;
+		memset(&bfh, 0, sizeof(BITMAPFILEHEADER));
+		bfh.bfType = 0x4D42;
+		bfh.bfSize = sizeof(BITMAPFILEHEADER) + sizeof(BITMAPINFOHEADER) + width * height * 3;
+		bfh.bfOffBits = sizeof(BITMAPFILEHEADER) + sizeof(BITMAPINFOHEADER);
+		fwrite(&bfh, sizeof(BITMAPFILEHEADER), 1, pFile);
 
+		BITMAPINFOHEADER bih;
+		memset(&bih, 0, sizeof(BITMAPINFOHEADER));
+		bih.biWidth = width;
+		bih.biHeight = height;
+		bih.biBitCount = 24;
+		bih.biSize = sizeof(BITMAPINFOHEADER);
+		fwrite(&bih, sizeof(BITMAPINFOHEADER), 1, pFile);
+
+		for (int i = 0; i < width * height * 3; i += 3)
+		{
+			pixelData[i] = pixelData[i] ^ pixelData[i + 2];
+			pixelData[i + 2] = pixelData[i] ^ pixelData[i + 2];
+			pixelData[i] = pixelData[i] ^ pixelData[i + 2];
+		}
+		fwrite(pixelData, width * height * 3, 1, pFile);
+	}
+
+	fclose(pFile);
+	return;
+}
+
+unsigned char* LoadBMP(const char* path, int& width, int& height)
+{
+	unsigned char* imageData = nullptr;
+	FILE* pFile;
+	fopen_s(&pFile, path, "rb");
+	if (pFile)
+	{
+		BITMAPFILEHEADER bfh;
+		fread(&bfh, sizeof(BITMAPFILEHEADER), 1, pFile);
+		if (bfh.bfType == 0x4D42)
+		{
+			BITMAPINFOHEADER bih;
+			fread(&bih, sizeof(BITMAPINFOHEADER), 1, pFile);
+			width = bih.biWidth;
+			height = bih.biHeight;
+			int pixelCount = width * height * 3;
+			imageData = new unsigned char[pixelCount];
+			fseek(pFile, bfh.bfOffBits, SEEK_SET);
+			fread(imageData, 1, pixelCount, pFile);
+
+			unsigned char temp;
+			for (int i = 0; i < pixelCount; i += 3)
+			{
+				temp = imageData[i + 2];
+				imageData[i + 2] = imageData[i];
+				imageData[i] = temp;
+			}
+		}
+		fclose(pFile);
+	}
+	return imageData;
+}
 
