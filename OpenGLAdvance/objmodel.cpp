@@ -25,6 +25,7 @@ VertexData * ObjModel::LoadObjModel(const char * const & pFilePath, int ** pInde
 	if (pFileContent == nullptr)
 	{
 		//日志
+		return nullptr;
 	}
 
 	std::stringstream ssFileContent((char*)pFileContent);
@@ -117,23 +118,28 @@ VertexData * ObjModel::LoadObjModel(const char * const & pFilePath, int ** pInde
 		}
 	}
 
-	////生成数据
-	//mIndexCount = indexes.size();
-	//mIndices = new int[mIndexCount];
-	//for (int i = 0; i < mIndexCount; ++i)
-	//{
-	//	mIndices[i] = indexes[i];
-	//	//printf("%d\n", mIndices[i]);
-	//}
+	//生成数据
+	mIndexCount = indexes.size();
+	indexCount = mIndexCount;
 
-	//int vertexCount = vertexDefines.size();
-	//mVertexes = new VertexData[vertexCount];
-	//for (int i = 0; i < vertexCount; ++i)
-	//{
-	//	memcpy(mVertexes[i].position, positions[vertexDefines[i].positionIndex - 1].v, 3 * sizeof(float));
-	//	memcpy(mVertexes[i].texcoord, texcoords[vertexDefines[i].texcoordIndex - 1].v, 2 * sizeof(float));
-	//	memcpy(mVertexes[i].normal, normals[vertexDefines[i].normalIndex - 1].v, 3 * sizeof(float));
-	//}
+	mIndices = new int[mIndexCount];
+	for (int i = 0; i < mIndexCount; ++i)
+	{
+		mIndices[i] = indexes[i];
+		//printf("%d\n", mIndices[i]);
+	}
+	*pIndexes = mIndices;
 
-	return nullptr;
+	int vertexCount = vertexDefines.size();
+	vetexCount = vertexCount;
+
+	mVertexes = new VertexData[vertexCount];
+	for (int i = 0; i < vertexCount; ++i)
+	{
+		memcpy(mVertexes[i].position, positions[vertexDefines[i].positionIndex - 1].v, 3 * sizeof(float));
+		memcpy(mVertexes[i].texcoord, texcoords[vertexDefines[i].texcoordIndex - 1].v, 2 * sizeof(float));
+		memcpy(mVertexes[i].normal, normals[vertexDefines[i].normalIndex - 1].v, 3 * sizeof(float));
+	}
+
+	return mVertexes;
 }
