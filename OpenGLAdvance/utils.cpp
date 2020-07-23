@@ -2,6 +2,8 @@
 #include <stdio.h>
 #include "utils.h"
 
+static GLuint CompileShader(const int& shaderType, const char * const & shaderCode);
+
 char* LoadFileContent(const char* const& filePath)
 {
 	if (filePath == nullptr)
@@ -30,14 +32,44 @@ char* LoadFileContent(const char* const& filePath)
 	return buffer;
 }
 
+GLuint CompileShader(const int& shaderType, const char * const & shaderCode)
+{
+	if (shaderCode == nullptr)
+	{
+		printf("CompileShader():shaderCode is nullptr!\n");
+		return 0;
+	}
+	GLuint shader = glCreateShader(shaderType);
+	if (shader == 0)
+	{
+		glDeleteShader(shader);
+		shader = 0;
+		printf("CompileShader():glCreateShader failed!\n");
+		return 0;
+	}
+	glShaderSource(shader, 1, &shaderCode, nullptr); //传入显卡
+	glCompileShader(shader);
+	GLint compileResult = GL_TRUE;
+	glGetShaderiv(shader, GL_COMPILE_STATUS, &compileResult);
+	if (compileResult != GL_TRUE)
+	{
+		char szLog[1024] = { 0 };
+		GLsizei logLen = 0;
+		glGetShaderInfoLog(shader, 1024, &logLen, szLog);
+		printf("CompileShader():glCompileShader failed!\nlog\n:%s\ncode\n:%s\n", szLog, shaderCode);
+		glDeleteShader(shader);
+		shader = 0;
+		return shader;
+	}
+
+	return shader;
+}
+
 GLuint CreateGPUProgram(const char * const & vsShaderCode, const char * const & fsShaderCode)
 {
-	GLuint vsShader = glCreateShader(GL_VERTEX_SHADER);
-	GLuint fsShader = glCreateShader(GL_FRAGMENT_SHADER);
-	glShaderSource(vsShader, 1, &vsShaderCode, nullptr); //传入显卡
-	glShaderSource(fsShader, 1, &fsShaderCode, nullptr);
-	glCompileShader(vsShader);
-	glCompileShader(fsShader);
+	GLuint vsShader = CompileShader(GL_VERTEX_SHADER,vsShaderCode);
+	GLuint fsShader = CompileShader(GL_FRAGMENT_SHADER, fsShaderCode);
+
 	GLuint program = glCreateProgram();
 	glAttachShader(program, vsShader);
 	glAttachShader(program, fsShader);
@@ -46,6 +78,19 @@ GLuint CreateGPUProgram(const char * const & vsShaderCode, const char * const & 
 	glDetachShader(program, fsShader);
 	glDeleteShader(vsShader);
 	glDeleteShader(fsShader);
+
+	GLint linkResult = GL_TRUE;
+	glGetProgramiv(program, GL_LINK_STATUS, &linkResult);
+	if (linkResult != GL_TRUE)
+	{
+		char szLog[1024] = { 0 };
+		GLsizei logLen = 0;
+		glGetProgramInfoLog(program, 1024, &logLen, szLog);
+		printf("CreateGPUProgram():glLinkProgram failed!\nvs\n:%s\nfs\n:%s\n", vsShaderCode, fsShaderCode);
+		glDeleteProgram(program);
+		program = 0;
+		return program;
+	}
 
 	return program;
 }
