@@ -60,5 +60,14 @@
     <None Include="Res\shader\first_trangle.fs">
       <Filter>Source Files\shader</Filter>
     </None>
+    <None Include="shader_f.bin">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="Res\shader\light.vs">
+      <Filter>Source Files\shader</Filter>
+    </None>
+    <None Include="Res\shader\light.fs">
+      <Filter>Source Files\shader</Filter>
+    </None>
   </ItemGroup>
 </Project>
