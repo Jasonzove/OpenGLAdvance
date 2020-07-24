@@ -1,6 +1,7 @@
 #version 430
 
 in vec3 V_normal;
+in vec4 V_pos;
 
 void main()
 {
@@ -21,5 +22,13 @@ void main()
     //max(0.0,dot(L,N):防止出现负数,dot(L,N)为强度
     vec4 diffuseColor = diffuseLightColor*diffuseMaterial*max(0.0,dot(L,N));
 
-    gl_FragColor = ambientColor + diffuseColor;
+    //specular
+    vec4 specularLightColor = vec4(1.0,1.0,1.0,1.0);
+    vec4 specularMaterial = vec4(0.8,0.8,0.8,1.0);
+    vec3 reflectDir = normalize(reflect(-L, N));
+    //inverse view direction
+    vec3 viewDir = normalize(vec3(0.0) - V_pos.xyz);
+    vec4 specularColor = specularLightColor*specularMaterial*pow(max(0.0, dot(reflectDir, viewDir)),128);
+
+    gl_FragColor = ambientColor + diffuseColor + specularColor;
 }
