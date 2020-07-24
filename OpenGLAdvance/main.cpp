@@ -63,20 +63,21 @@ INT WINAPI WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _
 
 	GLuint program = CreateGPUProgram(ShaderCoder::Get(IDR_SHADER_light_vs).c_str(),
 		ShaderCoder::Get(IDR_SHADER_light_fs).c_str());
-	GLuint posLocation, texcoordLocation, normalLocation, MLocation, VLocation, PLocation;
+	GLuint posLocation, texcoordLocation, normalLocation, MLocation, VLocation, PLocation, normalmatLocation;
 	posLocation = glGetAttribLocation(program, "pos");
 	texcoordLocation = glGetAttribLocation(program, "texcoord");
 	normalLocation = glGetAttribLocation(program, "normal");
 	MLocation = glGetUniformLocation(program, "M");
 	VLocation = glGetUniformLocation(program, "V");
 	PLocation = glGetUniformLocation(program, "P");
+	normalmatLocation = glGetUniformLocation(program, "NormalMat");
 
 	//obj model
 	int* indexes = nullptr;
 	int vertexCount = 0;
 	int indexCount = 0;
 	VertexData* vertexData = nullptr;
-	vertexData = objModel.LoadObjModel("./res/model/niutou.obj", &indexes, vertexCount, indexCount);
+	vertexData = objModel.LoadObjModel("./res/model/Sphere.obj", &indexes, vertexCount, indexCount);
 	//vbo, ebo
 	GLuint vbo = CreateGPUBufferObject(GL_ARRAY_BUFFER, sizeof(VertexData)*vertexCount, GL_STATIC_DRAW, vertexData);
 	GLuint ebo = CreateGPUBufferObject(GL_ELEMENT_ARRAY_BUFFER, sizeof(int)*indexCount, GL_STATIC_DRAW, indexes);
@@ -87,6 +88,8 @@ INT WINAPI WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _
 	ShowWindow(hwnd, SW_SHOW);
 	UpdateWindow(hwnd);
 
+	glEnable(GL_DEPTH_TEST);
+
 	glm::mat4 projectionMat = glm::perspective(45.0f, 800.0f / 600.0f, 0.1f, 1000.0f);
 	float idetity[] = {
 		1,0,0,0,
@@ -94,8 +97,8 @@ INT WINAPI WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _
 		0,0,1,0,
 		0,0,0,1
 	};
-	glm::mat4 modelMat = glm::translate(0.0f, -50.0f, -300.0f)*glm::rotate(-90.0f, 0.0f, 1.0f, 0.0f);
-
+	glm::mat4 modelMat = glm::translate(0.0f, 0.0f, -4.0f);
+	glm::mat4 normalMat = glm::inverseTranspose(modelMat);
 	MSG msg;
 	while (true)
 	{
@@ -108,12 +111,13 @@ INT WINAPI WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _
 			TranslateMessage(&msg);
 			DispatchMessage(&msg);
 		}
-		glClear(GL_COLOR_BUFFER_BIT);
+		glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT);
 		glUseProgram(program);
 
 		glUniformMatrix4fv(MLocation, 1, GL_FALSE, glm::value_ptr(modelMat));
 		glUniformMatrix4fv(VLocation, 1, GL_FALSE, idetity);
 		glUniformMatrix4fv(PLocation, 1, GL_FALSE, glm::value_ptr(projectionMat));
+		glUniformMatrix4fv(normalmatLocation, 1, GL_FALSE, glm::value_ptr(normalMat));
 
 		glBindBuffer(GL_ARRAY_BUFFER, vbo);
 		glEnableVertexAttribArray(posLocation);
