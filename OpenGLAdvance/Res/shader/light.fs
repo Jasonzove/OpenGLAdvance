@@ -5,7 +5,7 @@ in vec3 V_normal;
 void main()
 {
     //平行光参数
-    vec3 lightPosition = vec3(0.0,10.0,0.0);
+    vec3 lightPosition = vec3(10.0,10.0,0.0);
     vec3 L = lightPosition;
     L = normalize(L);
     vec3 N = normalize(V_normal);
