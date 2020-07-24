@@ -105,6 +105,38 @@ GLuint CreateGPUBufferObject(GLenum targetType, GLsizeiptr size, GLenum usage, c
 	return object;
 }
 
+GLuint CreateTexture(const char* const& filePath)
+{
+	if (filePath == nullptr)
+	{
+		printf("CreateTexture(): filepath is nullpt!\n");
+		return -1;
+	}
+	int width = 0;
+	int height = 0;
+	unsigned char* piexelData = LoadBMP(filePath, width, height);
+	if (nullptr == piexelData)
+	{
+		printf("CreateTexture(): loadBMP data failed!\n");
+		return -1;
+	}
+
+	GLuint textureId;
+	glGenTextures(1, &textureId);
+	glBindTexture(GL_TEXTURE_2D,textureId);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE); //超过的变成1
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, piexelData);
+	glBindTexture(GL_TEXTURE_2D, 0);
+
+	delete piexelData;
+	piexelData = nullptr;
+
+	return textureId;
+}
+
 void SavePixelDataToBMP(
 	const char* const& filePath,
 	unsigned char* const& pixelData,
@@ -143,7 +175,7 @@ void SavePixelDataToBMP(
 	return;
 }
 
-unsigned char* LoadBMP(const char* path, int& width, int& height)
+unsigned char* LoadBMP(const char* const& path, int& width, int& height)
 {
 	unsigned char* imageData = nullptr;
 	FILE* pFile;
@@ -152,7 +184,7 @@ unsigned char* LoadBMP(const char* path, int& width, int& height)
 	{
 		BITMAPFILEHEADER bfh;
 		fread(&bfh, sizeof(BITMAPFILEHEADER), 1, pFile);
-		if (bfh.bfType == 0x4D42)
+		if (bfh.bfType == 0x4D42) //0x4D42:bmp
 		{
 			BITMAPINFOHEADER bih;
 			fread(&bih, sizeof(BITMAPINFOHEADER), 1, pFile);
@@ -166,9 +198,9 @@ unsigned char* LoadBMP(const char* path, int& width, int& height)
 			unsigned char temp;
 			for (int i = 0; i < pixelCount; i += 3)
 			{
-				temp = imageData[i + 2];
-				imageData[i + 2] = imageData[i];
-				imageData[i] = temp;
+				imageData[i] = imageData[i] ^ imageData[i + 2];
+				imageData[i + 2] = imageData[i] ^ imageData[i + 2];
+				imageData[i] = imageData[i] ^ imageData[i + 2];
 			}
 		}
 		fclose(pFile);

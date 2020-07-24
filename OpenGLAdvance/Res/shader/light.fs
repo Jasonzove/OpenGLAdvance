@@ -1,7 +1,10 @@
-#version 430
+#version 460
+
+uniform sampler2D U_MainTexture;
 
 in vec3 V_normal;
 in vec4 V_pos;
+in vec2 V_texcoord;
 
 void main()
 {
@@ -30,5 +33,5 @@ void main()
     vec3 viewDir = normalize(vec3(0.0) - V_pos.xyz);
     vec4 specularColor = specularLightColor*specularMaterial*pow(max(0.0, dot(reflectDir, viewDir)),128);
 
-    gl_FragColor = ambientColor + diffuseColor + specularColor;
+    gl_FragColor = texture2D(U_MainTexture, V_texcoord);//ambientColor + diffuseColor + specularColor;
 }

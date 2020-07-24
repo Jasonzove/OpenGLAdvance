@@ -7,7 +7,9 @@ GLuint CreateGPUProgram(const char* const& vsShaderCode, const char* const& fsSh
 
 GLuint CreateGPUBufferObject(GLenum targetType, GLsizeiptr size, GLenum usage, const void* data = nullptr);
 
-unsigned char* LoadBMP(const char* path, int& width, int& height);
+GLuint CreateTexture(const char* const& filePath);
+
+unsigned char* LoadBMP(const char* const& path, int& width, int& height);
 
 void SavePixelDataToBMP(
 	const char* const& filePath,
