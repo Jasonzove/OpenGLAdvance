@@ -105,6 +105,29 @@ GLuint CreateGPUBufferObject(GLenum targetType, GLsizeiptr size, GLenum usage, c
 	return object;
 }
 
+const unsigned long FROMAT_DXT1 = 0x31545844l;//DXT1 -> 1 T X D 的asci码
+static unsigned char* DecodeDXT(const char* const& fileContent, int& width, int& height, int& size)
+{
+	height = *(unsigned long*)(fileContent + sizeof(unsigned long) * 3);
+	width = *(unsigned long*)(fileContent + sizeof(unsigned long) * 4);
+	size = *(unsigned long*)(fileContent + sizeof(unsigned long) * 5);
+	unsigned long compressFormat = *(unsigned long*)(fileContent + sizeof(unsigned long) * 21);
+	switch (compressFormat)
+	{
+	case FROMAT_DXT1:
+		printf("DXT1\n");
+
+		break;
+	default:
+		break;
+	}
+
+	unsigned char* pPixelData = new unsigned char[size];
+	memcpy(pPixelData, (fileContent + sizeof(unsigned long) * 10), size);
+
+	return pPixelData;
+}
+
 GLuint CreateTexture(const char* const& filePath)
 {
 	if (filePath == nullptr)
@@ -112,12 +135,30 @@ GLuint CreateTexture(const char* const& filePath)
 		printf("CreateTexture(): filepath is nullpt!\n");
 		return -1;
 	}
+	char* pFileContent = LoadFileContent(filePath);
+	if (pFileContent == nullptr)
+	{
+		printf("CreateTexture(): pFileContent is nullpt!\n");
+		return -1;
+	}
+
 	int width = 0;
 	int height = 0;
-	unsigned char* piexelData = LoadBMP(filePath, width, height);
+	int dxt1size = 0;
+	unsigned char* piexelData = nullptr;
+	GLenum format = GL_RGB;
+	if (*((unsigned short*)pFileContent) == 0x4D42)
+	{
+		piexelData = LoadBMP(filePath, width, height);
+	}
+	else if (memcmp(pFileContent, "DDS ", 4) == 0) //压缩格式,有alpha通道
+	{
+		piexelData = DecodeDXT(pFileContent, width, height, dxt1size);
+		format = GL_COMPRESSED_RGBA_S3TC_DXT1_EXT;
+	}
 	if (nullptr == piexelData)
 	{
-		printf("CreateTexture(): loadBMP data failed!\n");
+		printf("CreateTexture(): decode data failed!\n");
 		return -1;
 	}
 
@@ -128,7 +169,14 @@ GLuint CreateTexture(const char* const& filePath)
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE); //超过的变成1
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, piexelData);
+	if (format == GL_RGB)
+	{
+		glTexImage2D(GL_TEXTURE_2D, 0, format, width, height, 0, format, GL_UNSIGNED_BYTE, piexelData);
+	}
+	else if (format == GL_COMPRESSED_RGBA_S3TC_DXT1_EXT)
+	{
+		glCompressedTexImage2D(GL_TEXTURE_2D, 0, format, width, height, 0, dxt1size, piexelData);
+	}
 	glBindTexture(GL_TEXTURE_2D, 0);
 
 	delete piexelData;
@@ -207,4 +255,3 @@ unsigned char* LoadBMP(const char* const& path, int& width, int& height)
 	}
 	return imageData;
 }
-

@@ -84,7 +84,7 @@ INT WINAPI WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _
 	GLuint vbo = CreateGPUBufferObject(GL_ARRAY_BUFFER, sizeof(VertexData)*vertexCount, GL_STATIC_DRAW, vertexData);
 	GLuint ebo = CreateGPUBufferObject(GL_ELEMENT_ARRAY_BUFFER, sizeof(int)*indexCount, GL_STATIC_DRAW, indexes);
 	//texture
-	GLuint textureId = CreateTexture("./res/image/earth.bmp");
+	GLuint textureId = CreateTexture("./res/image/head.dds");
 
 	//glClearColor(41.0f / 255.0f, 71.0f / 255.0f, 121.0f / 255.0f, 1.0f);
 	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
@@ -93,6 +93,8 @@ INT WINAPI WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _
 	UpdateWindow(hwnd);
 
 	glEnable(GL_DEPTH_TEST);
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
 	glm::mat4 projectionMat = glm::perspective(45.0f, 800.0f / 600.0f, 0.1f, 1000.0f);
 	float idetity[] = {
