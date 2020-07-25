@@ -61,8 +61,8 @@ INT WINAPI WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _
 	wglMakeCurrent(dc, rc);
 	glewInit(); //glew初始化，必须放在wglMakeCurrent之后
 
-	GLuint program = CreateGPUProgram(ShaderCoder::Get(IDR_SHADER_light_vs).c_str(),
-		ShaderCoder::Get(IDR_SHADER_light_fs).c_str());
+	GLuint program = CreateGPUProgram(ShaderCoder::Get(IDR_SHADER_ui_vs).c_str(),
+		ShaderCoder::Get(IDR_SHADER_ui_fs).c_str());
 	GLuint posLocation, texcoordLocation, normalLocation, MLocation, VLocation, PLocation, normalmatLocation;
 	GLuint textureSamplerLocation;
 	posLocation = glGetAttribLocation(program, "pos");
@@ -79,7 +79,7 @@ INT WINAPI WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _
 	int vertexCount = 0;
 	int indexCount = 0;
 	VertexData* vertexData = nullptr;
-	vertexData = objModel.LoadObjModel("./res/model/Sphere.obj", &indexes, vertexCount, indexCount);
+	vertexData = objModel.LoadObjModel("./res/model/Quad.obj", &indexes, vertexCount, indexCount);
 	//vbo, ebo
 	GLuint vbo = CreateGPUBufferObject(GL_ARRAY_BUFFER, sizeof(VertexData)*vertexCount, GL_STATIC_DRAW, vertexData);
 	GLuint ebo = CreateGPUBufferObject(GL_ELEMENT_ARRAY_BUFFER, sizeof(int)*indexCount, GL_STATIC_DRAW, indexes);
@@ -87,7 +87,7 @@ INT WINAPI WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _
 	GLuint textureId = CreateTexture("./res/image/head.dds");
 
 	//glClearColor(41.0f / 255.0f, 71.0f / 255.0f, 121.0f / 255.0f, 1.0f);
-	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+	glClearColor(0.1f, 0.4f, 0.7f, 1.0f);
 
 	ShowWindow(hwnd, SW_SHOW);
 	UpdateWindow(hwnd);
@@ -97,13 +97,16 @@ INT WINAPI WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
 	glm::mat4 projectionMat = glm::perspective(45.0f, 800.0f / 600.0f, 0.1f, 1000.0f);
+	//2d，调整，原图是1*1像素的
+	glm::mat4 uiMat = glm::ortho(-400.0f, 400.0f, -300.0f, 300.0f); //和屏幕一样大，保证不变形
+	//glm::mat4 uiMat = glm::ortho(-4.0f/8.0f, 4.0f / 8.0f, -3.0f / 8.0f, 3.0f / 8.0f);
 	float idetity[] = {
 		1,0,0,0,
 		0,1,0,0,
 		0,0,1,0,
 		0,0,0,1
 	};
-	glm::mat4 modelMat = glm::translate(0.0f, 0.0f, -4.0f);
+	glm::mat4 modelMat = glm::scale(100.0f, 100.0f, 1.0f); //一个像素，放大100倍才能看见
 	glm::mat4 normalMat = glm::inverseTranspose(modelMat);
 	static float angle;
 	MSG msg;
@@ -118,19 +121,19 @@ INT WINAPI WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _
 			TranslateMessage(&msg);
 			DispatchMessage(&msg);
 		}
-		angle += 0.5f;
-		if (angle > 360.0f)
-		{
-			angle = 0.0f;
-		}
-		modelMat = glm::translate(0.0f, 0.0f, -4.0f) * glm::rotate(angle, 0.0f, 1.0f, 0.0f);
-		glm::mat4 normalMat = glm::inverseTranspose(modelMat); //model更新需要更新normalmat,normalmat的作用就是讲法线从局部坐标系转到世界坐标系
+		//angle += 0.5f;
+		//if (angle > 360.0f)
+		//{
+		//	angle = 0.0f;
+		//}
+		//modelMat = glm::translate(0.0f, 0.0f, -4.0f) * glm::rotate(angle, 0.0f, 1.0f, 0.0f);
+		//glm::mat4 normalMat = glm::inverseTranspose(modelMat); //model更新需要更新normalmat,normalmat的作用就是讲法线从局部坐标系转到世界坐标系
 		glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT);
 		glUseProgram(program);
 
 		glUniformMatrix4fv(MLocation, 1, GL_FALSE, glm::value_ptr(modelMat));
 		glUniformMatrix4fv(VLocation, 1, GL_FALSE, idetity);
-		glUniformMatrix4fv(PLocation, 1, GL_FALSE, glm::value_ptr(projectionMat));
+		glUniformMatrix4fv(PLocation, 1, GL_FALSE, glm::value_ptr(uiMat));
 		glUniformMatrix4fv(normalmatLocation, 1, GL_FALSE, glm::value_ptr(normalMat));
 
 		glBindTexture(GL_TEXTURE_2D, textureId);

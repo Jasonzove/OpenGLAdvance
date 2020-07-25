@@ -147,6 +147,8 @@
     <None Include="Res\shader\first_trangle.vs" />
     <None Include="Res\shader\light.fs" />
     <None Include="Res\shader\light.vs" />
+    <None Include="Res\shader\ui.fs" />
+    <None Include="Res\shader\ui.vs" />
     <None Include="shader_f.bin" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

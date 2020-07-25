@@ -123,7 +123,7 @@ static unsigned char* DecodeDXT(const char* const& fileContent, int& width, int&
 	}
 
 	unsigned char* pPixelData = new unsigned char[size];
-	memcpy(pPixelData, (fileContent + sizeof(unsigned long) * 10), size);
+	memcpy(pPixelData, (fileContent + sizeof(unsigned long) * 32), size);
 
 	return pPixelData;
 }
