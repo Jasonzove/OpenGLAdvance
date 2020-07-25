@@ -21,7 +21,7 @@ void main()
 
     //diffuse
     vec4 diffuseLightColor = vec4(1.0,1.0,1.0,1.0);
-    vec4 diffuseMaterial = vec4(0.4,0.4,0.4,1.0);
+    vec4 diffuseMaterial = vec4(0.8,0.8,0.8,1.0);
     //max(0.0,dot(L,N):防止出现负数,dot(L,N)为强度
     vec4 diffuseColor = diffuseLightColor*diffuseMaterial*max(0.0,dot(L,N));
 
@@ -32,6 +32,15 @@ void main()
     //inverse view direction
     vec3 viewDir = normalize(vec3(0.0) - V_pos.xyz);
     vec4 specularColor = specularLightColor*specularMaterial*pow(max(0.0, dot(reflectDir, viewDir)),128);
-
-    gl_FragColor = texture2D(U_MainTexture, V_texcoord);//ambientColor + diffuseColor + specularColor;
+    
+    if(diffuseColor.r == 0) //背光面不出现光斑
+    {
+        //将颜色单独提出来相加，不会减弱其效果。相乘会减弱其效果
+        gl_FragColor = ambientColor + texture2D(U_MainTexture, V_texcoord) * (diffuseColor);  
+    }
+    else
+    {
+        //将颜色单独提出来相加，不会减弱其效果。相乘会减弱其效果
+        gl_FragColor = ambientColor + texture2D(U_MainTexture, V_texcoord) * (diffuseColor)  + specularColor;
+    }
 }
