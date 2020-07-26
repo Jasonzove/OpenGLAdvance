@@ -40,8 +40,15 @@ INT WINAPI WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _
 	wndClass.lpszMenuName = NULL;
 	wndClass.style = CS_VREDRAW | CS_HREDRAW;
 	ATOM atom = RegisterClassEx(&wndClass);
+	//设置要创建的窗口的大小
+	RECT rect;
+	rect.left = 0.0f;
+	rect.right = 800.0f;
+	rect.bottom = 600.0f;
+	rect.top = 0.0f;
+	AdjustWindowRect(&rect, WS_OVERLAPPEDWINDOW, FALSE);
 
-	HWND hwnd = CreateWindowEx(NULL, L"OpenGL", L"RenderWindow", WS_OVERLAPPEDWINDOW, 100, 100, 800, 600, NULL, NULL, hInstance, NULL);
+	HWND hwnd = CreateWindowEx(NULL, L"OpenGL", L"RenderWindow", WS_OVERLAPPEDWINDOW, 100, 100, rect.right - rect.left, rect.bottom - rect.top, NULL, NULL, hInstance, NULL);
 	HDC dc = GetDC(hwnd);
 	PIXELFORMATDESCRIPTOR pfd;
 	memset(&pfd, 0, sizeof(PIXELFORMATDESCRIPTOR));
@@ -59,6 +66,13 @@ INT WINAPI WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _
 
 	HGLRC rc = wglCreateContext(dc);
 	wglMakeCurrent(dc, rc);
+
+	int width = 0;
+	int height = 0;
+	GetClientRect(hwnd, &rect);
+	width = rect.right - rect.left;
+	height = rect.bottom - rect.top;
+
 	glewInit(); //glew初始化，必须放在wglMakeCurrent之后
 
 	GLuint program = CreateGPUProgram(ShaderCoder::Get(IDR_SHADER_full_screen_vs).c_str(),
@@ -93,21 +107,12 @@ INT WINAPI WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _
 	ShowWindow(hwnd, SW_SHOW);
 	UpdateWindow(hwnd);
 
-	int width = 0;
-	int height = 0;
-	RECT rect;
-	GetClientRect(hwnd, &rect);
-	width = rect.right - rect.left;
-	height = rect.bottom - rect.top;
-	float z = 4.0f;
-	float fov = 45.0f;
-
 	glEnable(GL_DEPTH_TEST);
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	glViewport(0.0f, 0.0f, (float)width, (float)height);
 
-	glm::mat4 projectionMat = glm::perspective(fov, (float)width / (float)height, 0.1f, 1000.0f);
+	glm::mat4 projectionMat = glm::perspective(45.0f, (float)width / (float)height, 0.1f, 1000.0f);
 	//2d，调整，原图是1*1像素的
 	//glm::mat4 uiMat = glm::ortho(-400.0f, 400.0f, -300.0f, 300.0f); //和屏幕一样大，保证不变形
 	//glm::mat4 uiMat = glm::ortho(-4.0f/8.0f, 4.0f / 8.0f, -3.0f / 8.0f, 3.0f / 8.0f);
@@ -118,7 +123,7 @@ INT WINAPI WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _
 		0,0,0,1
 	};
 	//glm::mat4 modelMat = glm::scale(100.0f, 100.0f, 1.0f); //一个像素，放大100倍才能看见
-	glm::mat4 modelMat = glm::translate(0.0f, 0.0f, -z);
+	glm::mat4 modelMat = glm::translate(0.0f, 0.0f, -4.0f);
 	glm::mat4 normalMat = glm::inverseTranspose(modelMat);
 	static float angle;
 	MSG msg;
