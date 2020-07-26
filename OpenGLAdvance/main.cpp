@@ -80,11 +80,34 @@ INT WINAPI WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _
 	int indexCount = 0;
 	VertexData* vertexData = nullptr;
 	vertexData = objModel.LoadObjModel("./res/model/Quad.obj", &indexes, vertexCount, indexCount);
+
+	int width = 0;
+	int height = 0;
+	RECT rect;
+	GetClientRect(hwnd, &rect);
+	width = rect.right - rect.left;
+	height = rect.bottom - rect.top;
+	float z = 4.0f;
+	float fov = 45.0f;
+	float halfFov = fov / 2.0f;
+	float radianHalfFov = (halfFov / 180.0)* 3.1415926;
+	float tanHalfFov = tan(radianHalfFov);
+	float y = tanHalfFov * z;
+	float x = (float(width) / (float)height)*y;
+	vertexData[0].position[0] = -x;
+	vertexData[0].position[1] = -y;
+	vertexData[1].position[0] = x;
+	vertexData[1].position[1] = -y;
+	vertexData[2].position[0] = -x;
+	vertexData[2].position[1] = y;
+	vertexData[3].position[0] = x;
+	vertexData[3].position[1] = y;
+
 	//vbo, ebo
 	GLuint vbo = CreateGPUBufferObject(GL_ARRAY_BUFFER, sizeof(VertexData)*vertexCount, GL_STATIC_DRAW, vertexData);
 	GLuint ebo = CreateGPUBufferObject(GL_ELEMENT_ARRAY_BUFFER, sizeof(int)*indexCount, GL_STATIC_DRAW, indexes);
 	//texture
-	GLuint textureId = CreateTexture("./res/image/head.dds");
+	GLuint textureId = CreateTexture("./res/image/niutou.bmp");
 
 	//glClearColor(41.0f / 255.0f, 71.0f / 255.0f, 121.0f / 255.0f, 1.0f);
 	glClearColor(0.1f, 0.4f, 0.7f, 1.0f);
@@ -95,11 +118,11 @@ INT WINAPI WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _
 	glEnable(GL_DEPTH_TEST);
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-	glViewport(0.0f, 0.0f, 800.0f, 600.0f);
+	glViewport(0.0f, 0.0f, (float)width, (float)height);
 
-	glm::mat4 projectionMat = glm::perspective(45.0f, 800.0f / 600.0f, 0.1f, 1000.0f);
+	glm::mat4 projectionMat = glm::perspective(fov, (float)width / (float)height, 0.1f, 1000.0f);
 	//2d，调整，原图是1*1像素的
-	glm::mat4 uiMat = glm::ortho(-400.0f, 400.0f, -300.0f, 300.0f); //和屏幕一样大，保证不变形
+	//glm::mat4 uiMat = glm::ortho(-400.0f, 400.0f, -300.0f, 300.0f); //和屏幕一样大，保证不变形
 	//glm::mat4 uiMat = glm::ortho(-4.0f/8.0f, 4.0f / 8.0f, -3.0f / 8.0f, 3.0f / 8.0f);
 	float idetity[] = {
 		1,0,0,0,
@@ -107,7 +130,8 @@ INT WINAPI WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _
 		0,0,1,0,
 		0,0,0,1
 	};
-	glm::mat4 modelMat = glm::scale(100.0f, 100.0f, 1.0f); //一个像素，放大100倍才能看见
+	//glm::mat4 modelMat = glm::scale(100.0f, 100.0f, 1.0f); //一个像素，放大100倍才能看见
+	glm::mat4 modelMat = glm::translate(0.0f, 0.0f, -z);
 	glm::mat4 normalMat = glm::inverseTranspose(modelMat);
 	static float angle;
 	MSG msg;
@@ -134,7 +158,7 @@ INT WINAPI WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _
 
 		glUniformMatrix4fv(MLocation, 1, GL_FALSE, glm::value_ptr(modelMat));
 		glUniformMatrix4fv(VLocation, 1, GL_FALSE, idetity);
-		glUniformMatrix4fv(PLocation, 1, GL_FALSE, glm::value_ptr(uiMat));
+		glUniformMatrix4fv(PLocation, 1, GL_FALSE, glm::value_ptr(projectionMat));
 		glUniformMatrix4fv(normalmatLocation, 1, GL_FALSE, glm::value_ptr(normalMat));
 
 		glBindTexture(GL_TEXTURE_2D, textureId);
