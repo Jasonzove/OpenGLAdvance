@@ -255,3 +255,35 @@ unsigned char* LoadBMP(const char* const& path, int& width, int& height)
 	}
 	return imageData;
 }
+
+void CheckGLError(const char * const & pFile, const int & line)
+{
+	GLenum error = glGetError();
+	if (error != GL_NO_ERROR)
+	{
+		switch (error)
+		{
+		case GL_INVALID_ENUM:
+			printf("GL ERROR: GL_INVALID_ENUM. %s:%d\n", pFile, line);
+			break;
+		case GL_INVALID_VALUE:
+			printf("GL ERROR: GL_INVALID_VALUE. %s:%d\n", pFile, line);
+			break;
+		case GL_INVALID_OPERATION:
+			printf("GL ERROR: GL_INVALID_OPERATION. %s:%d\n", pFile, line);
+			break;
+		case GL_STACK_OVERFLOW:
+			printf("GL ERROR: GL_STACK_OVERFLOW. %s:%d\n", pFile, line);
+			break;
+		case GL_STACK_UNDERFLOW:
+			printf("GL ERROR: GL_STACK_UNDERFLOW. %s:%d\n", pFile, line);
+			break;
+		case GL_OUT_OF_MEMORY:
+			printf("GL ERROR: GL_OUT_OF_MEMORY. %s:%d\n", pFile, line);
+			break;
+		default:
+			printf("GL ERROR: %0x. %s:%d\n", error, pFile, line);
+			break;
+		}
+	}
+}

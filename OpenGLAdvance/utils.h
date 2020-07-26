@@ -17,3 +17,11 @@ void SavePixelDataToBMP(
 	const int& width,
 	const int& height);
 
+void CheckGLError(const char*const& pFile, const int& line);
+#define GL_CHECK(x) \
+do\
+{\
+	x;\
+	CheckGLError(__FILE__, __LINE__);\
+} while (false);
+

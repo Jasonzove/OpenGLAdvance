@@ -94,10 +94,7 @@ INT WINAPI WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _
 	int vertexCount = 0;
 	int indexCount = 0;
 	VertexData* vertexData = nullptr;
-	Timer t;
-	t.Start();
 	vertexData = objModel.LoadObjModel("./res/model/Quad.obj", &indexes, vertexCount, indexCount);
-	printf("%f\n", t.GetPassedTimeInMs());
 	//vbo, ebo
 	GLuint vbo = CreateGPUBufferObject(GL_ARRAY_BUFFER, sizeof(VertexData)*vertexCount, GL_STATIC_DRAW, vertexData);
 	GLuint ebo = CreateGPUBufferObject(GL_ELEMENT_ARRAY_BUFFER, sizeof(int)*indexCount, GL_STATIC_DRAW, indexes);
@@ -157,7 +154,7 @@ INT WINAPI WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _
 
 		glUseProgram(0);
 	};
-
+	//GL_CHECK(glEnable(GL_LINE));
 	MSG msg;
 	while (true)
 	{
