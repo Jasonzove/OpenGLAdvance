@@ -130,12 +130,14 @@
     <ClCompile Include="main.cpp" />
     <ClCompile Include="objmodel.cpp" />
     <ClCompile Include="shader_coder.cpp" />
+    <ClCompile Include="timer.cpp" />
     <ClCompile Include="utils.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="objmodel.h" />
     <ClInclude Include="resource.h" />
     <ClInclude Include="shader_coder.h" />
+    <ClInclude Include="timer.h" />
     <ClInclude Include="utils.h" />
     <ClInclude Include="vertexdata.h" />
   </ItemGroup>
