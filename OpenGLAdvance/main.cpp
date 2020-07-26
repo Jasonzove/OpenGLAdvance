@@ -126,6 +126,35 @@ INT WINAPI WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _
 	glm::mat4 modelMat = glm::translate(0.0f, 0.0f, -4.0f);
 	glm::mat4 normalMat = glm::inverseTranspose(modelMat);
 	static float angle;
+
+	auto render = [&](void)->void {
+		glUseProgram(program);
+
+		glUniformMatrix4fv(MLocation, 1, GL_FALSE, glm::value_ptr(modelMat));
+		glUniformMatrix4fv(VLocation, 1, GL_FALSE, idetity);
+		glUniformMatrix4fv(PLocation, 1, GL_FALSE, glm::value_ptr(projectionMat));
+		glUniformMatrix4fv(normalmatLocation, 1, GL_FALSE, glm::value_ptr(normalMat));
+
+		glBindTexture(GL_TEXTURE_2D, textureId);
+		glUniform1i(textureSamplerLocation, 0);
+		//glBindTexture(GL_TEXTURE_2D, 0);
+
+		glBindBuffer(GL_ARRAY_BUFFER, vbo);
+		glEnableVertexAttribArray(posLocation);
+		glVertexAttribPointer(posLocation, 3, GL_FLOAT, GL_FALSE, sizeof(VertexData), (void*)NULL);
+		glEnableVertexAttribArray(texcoordLocation);
+		glVertexAttribPointer(texcoordLocation, 2, GL_FLOAT, GL_FALSE, sizeof(VertexData), (void*)(3 * sizeof(float)));
+		glEnableVertexAttribArray(normalLocation);
+		glVertexAttribPointer(normalLocation, 3, GL_FLOAT, GL_FALSE, sizeof(VertexData), (void*)(5 * sizeof(float)));
+		glBindBuffer(GL_ARRAY_BUFFER, 0);
+
+		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo);
+		glDrawElements(GL_TRIANGLES, indexCount, GL_UNSIGNED_INT, 0);
+		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+
+		glUseProgram(0);
+	};
+
 	MSG msg;
 	while (true)
 	{
@@ -146,31 +175,12 @@ INT WINAPI WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _
 		//modelMat = glm::translate(0.0f, 0.0f, -4.0f) * glm::rotate(angle, 0.0f, 1.0f, 0.0f);
 		//glm::mat4 normalMat = glm::inverseTranspose(modelMat); //model更新需要更新normalmat,normalmat的作用就是讲法线从局部坐标系转到世界坐标系
 		glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT);
-		glUseProgram(program);
-
-		glUniformMatrix4fv(MLocation, 1, GL_FALSE, glm::value_ptr(modelMat));
-		glUniformMatrix4fv(VLocation, 1, GL_FALSE, idetity);
-		glUniformMatrix4fv(PLocation, 1, GL_FALSE, glm::value_ptr(projectionMat));
-		glUniformMatrix4fv(normalmatLocation, 1, GL_FALSE, glm::value_ptr(normalMat));
-
-		glBindTexture(GL_TEXTURE_2D, textureId);
-		glUniform1i(textureSamplerLocation, 0);
-		//glBindTexture(GL_TEXTURE_2D, 0);
-
-		glBindBuffer(GL_ARRAY_BUFFER, vbo);
-		glEnableVertexAttribArray(posLocation);
-		glVertexAttribPointer(posLocation, 3, GL_FLOAT, GL_FALSE, sizeof(VertexData), (void*)NULL);
-		glEnableVertexAttribArray(texcoordLocation);
-		glVertexAttribPointer(texcoordLocation, 2, GL_FLOAT, GL_FALSE, sizeof(VertexData), (void*)(3*sizeof(float)));
-		glEnableVertexAttribArray(normalLocation);
-		glVertexAttribPointer(normalLocation, 3, GL_FLOAT, GL_FALSE, sizeof(VertexData), (void*)(5 * sizeof(float)));
-		glBindBuffer(GL_ARRAY_BUFFER, 0);
-
-		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo);
-		glDrawElements(GL_TRIANGLES, indexCount, GL_UNSIGNED_INT, 0);
-		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
-
-		glUseProgram(0);
+		glEnable(GL_SCISSOR_TEST);
+		glScissor(0, 0, width, 100);
+		render();
+		glScissor(0, 400, width, 100);
+		render();
+		glDisable(GL_SCISSOR_TEST);
 		SwapBuffers(dc);
 	}
 	return 0;
