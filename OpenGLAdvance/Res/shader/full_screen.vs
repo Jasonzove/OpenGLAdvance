@@ -12,7 +12,7 @@ out vec2 V_texcoord;
 
 void main()
 {
-	//V_texcoord = vec2(texcoord.x, 1.0-texcoord.y); //dds
 	V_texcoord = texcoord;
-    gl_Position = P*V*M*vec4(pos, 1.0);
+	vec4 position = vec4(pos.x*2,pos.y*2,pos.z, 1.0); //quad.obj的坐标范围为-0.5~0.5,这样直接映射到ndc的-1~1
+    gl_Position = position;
 }

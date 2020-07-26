@@ -145,6 +145,8 @@
   <ItemGroup>
     <None Include="Res\shader\first_trangle.fs" />
     <None Include="Res\shader\first_trangle.vs" />
+    <None Include="Res\shader\full_screen.fs" />
+    <None Include="Res\shader\full_screen.vs" />
     <None Include="Res\shader\light.fs" />
     <None Include="Res\shader\light.vs" />
     <None Include="Res\shader\ui.fs" />

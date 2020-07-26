@@ -61,8 +61,8 @@ INT WINAPI WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _
 	wglMakeCurrent(dc, rc);
 	glewInit(); //glew初始化，必须放在wglMakeCurrent之后
 
-	GLuint program = CreateGPUProgram(ShaderCoder::Get(IDR_SHADER_ui_vs).c_str(),
-		ShaderCoder::Get(IDR_SHADER_ui_fs).c_str());
+	GLuint program = CreateGPUProgram(ShaderCoder::Get(IDR_SHADER_full_screen_vs).c_str(),
+		ShaderCoder::Get(IDR_SHADER_full_screen_fs).c_str());
 	GLuint posLocation, texcoordLocation, normalLocation, MLocation, VLocation, PLocation, normalmatLocation;
 	GLuint textureSamplerLocation;
 	posLocation = glGetAttribLocation(program, "pos");
@@ -81,28 +81,6 @@ INT WINAPI WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _
 	VertexData* vertexData = nullptr;
 	vertexData = objModel.LoadObjModel("./res/model/Quad.obj", &indexes, vertexCount, indexCount);
 
-	int width = 0;
-	int height = 0;
-	RECT rect;
-	GetClientRect(hwnd, &rect);
-	width = rect.right - rect.left;
-	height = rect.bottom - rect.top;
-	float z = 4.0f;
-	float fov = 45.0f;
-	float halfFov = fov / 2.0f;
-	float radianHalfFov = (halfFov / 180.0)* 3.1415926;
-	float tanHalfFov = tan(radianHalfFov);
-	float y = tanHalfFov * z;
-	float x = (float(width) / (float)height)*y;
-	vertexData[0].position[0] = -x;
-	vertexData[0].position[1] = -y;
-	vertexData[1].position[0] = x;
-	vertexData[1].position[1] = -y;
-	vertexData[2].position[0] = -x;
-	vertexData[2].position[1] = y;
-	vertexData[3].position[0] = x;
-	vertexData[3].position[1] = y;
-
 	//vbo, ebo
 	GLuint vbo = CreateGPUBufferObject(GL_ARRAY_BUFFER, sizeof(VertexData)*vertexCount, GL_STATIC_DRAW, vertexData);
 	GLuint ebo = CreateGPUBufferObject(GL_ELEMENT_ARRAY_BUFFER, sizeof(int)*indexCount, GL_STATIC_DRAW, indexes);
@@ -114,6 +92,15 @@ INT WINAPI WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _
 
 	ShowWindow(hwnd, SW_SHOW);
 	UpdateWindow(hwnd);
+
+	int width = 0;
+	int height = 0;
+	RECT rect;
+	GetClientRect(hwnd, &rect);
+	width = rect.right - rect.left;
+	height = rect.bottom - rect.top;
+	float z = 4.0f;
+	float fov = 45.0f;
 
 	glEnable(GL_DEPTH_TEST);
 	glEnable(GL_BLEND);

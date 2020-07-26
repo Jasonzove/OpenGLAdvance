@@ -75,5 +75,11 @@
     <None Include="Res\shader\ui.vs">
       <Filter>Source Files\shader</Filter>
     </None>
+    <None Include="Res\shader\full_screen.fs">
+      <Filter>Source Files\shader</Filter>
+    </None>
+    <None Include="Res\shader\full_screen.vs">
+      <Filter>Source Files\shader</Filter>
+    </None>
   </ItemGroup>
 </Project>
