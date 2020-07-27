@@ -87,5 +87,11 @@
     <None Include="Res\shader\full_screen.vs">
       <Filter>Source Files\shader</Filter>
     </None>
+    <None Include="Res\shader\point_sprite.fs">
+      <Filter>Source Files\shader</Filter>
+    </None>
+    <None Include="Res\shader\point_sprite.vs">
+      <Filter>Source Files\shader</Filter>
+    </None>
   </ItemGroup>
 </Project>

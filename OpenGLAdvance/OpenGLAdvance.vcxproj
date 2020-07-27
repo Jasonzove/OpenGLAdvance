@@ -151,6 +151,8 @@
     <None Include="Res\shader\full_screen.vs" />
     <None Include="Res\shader\light.fs" />
     <None Include="Res\shader\light.vs" />
+    <None Include="Res\shader\point_sprite.fs" />
+    <None Include="Res\shader\point_sprite.vs" />
     <None Include="Res\shader\ui.fs" />
     <None Include="Res\shader\ui.vs" />
     <None Include="shader_f.bin" />

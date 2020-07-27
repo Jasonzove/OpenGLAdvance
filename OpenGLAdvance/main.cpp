@@ -76,8 +76,8 @@ INT WINAPI WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _
 
 	glewInit(); //glew初始化，必须放在wglMakeCurrent之后
 
-	GLuint program = CreateGPUProgram(ShaderCoder::Get(IDR_SHADER_full_screen_vs).c_str(),
-		ShaderCoder::Get(IDR_SHADER_full_screen_fs).c_str());
+	GLuint program = CreateGPUProgram(ShaderCoder::Get(IDR_SHADER_point_sprite_vs).c_str(),
+		ShaderCoder::Get(IDR_SHADER_point_sprite_fs).c_str());
 	GLuint posLocation, texcoordLocation, normalLocation, MLocation, VLocation, PLocation, normalmatLocation;
 	GLuint textureSamplerLocation;
 	posLocation = glGetAttribLocation(program, "pos");
@@ -96,10 +96,12 @@ INT WINAPI WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _
 	VertexData* vertexData = nullptr;
 	vertexData = objModel.LoadObjModel("./res/model/Quad.obj", &indexes, vertexCount, indexCount);
 	//vbo, ebo
+	vertexData[0].position[0] = 0.0f;
+	vertexData[0].position[1] = 0.0f; //点精灵的朝向永远朝一个方向，旋转不起作用
 	GLuint vbo = CreateGPUBufferObject(GL_ARRAY_BUFFER, sizeof(VertexData)*vertexCount, GL_STATIC_DRAW, vertexData);
 	GLuint ebo = CreateGPUBufferObject(GL_ELEMENT_ARRAY_BUFFER, sizeof(int)*indexCount, GL_STATIC_DRAW, indexes);
 	//texture
-	GLuint textureId = CreateTexture("./res/image/niutou.bmp");
+	GLuint textureId = CreateTexture("./res/image/camera.dds");
 
 	//glClearColor(41.0f / 255.0f, 71.0f / 255.0f, 121.0f / 255.0f, 1.0f);
 	glClearColor(0.1f, 0.4f, 0.7f, 1.0f);
@@ -108,6 +110,10 @@ INT WINAPI WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _
 	UpdateWindow(hwnd);
 
 	glEnable(GL_DEPTH_TEST);
+
+	glEnable(GL_POINT_SPRITE); //开启点精灵贴图
+	glEnable(GL_PROGRAM_POINT_SIZE); //开启点精灵大小
+
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	glViewport(0.0f, 0.0f, (float)width, (float)height);
@@ -149,7 +155,7 @@ INT WINAPI WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _
 		glBindBuffer(GL_ARRAY_BUFFER, 0);
 
 		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo);
-		glDrawElements(GL_TRIANGLES, indexCount, GL_UNSIGNED_INT, 0);
+		glDrawElements(GL_POINTS, 1, GL_UNSIGNED_INT, 0);
 		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 
 		glUseProgram(0);
@@ -176,11 +182,7 @@ INT WINAPI WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _
 		//glm::mat4 normalMat = glm::inverseTranspose(modelMat); //model更新需要更新normalmat,normalmat的作用就是讲法线从局部坐标系转到世界坐标系
 		glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT);
 		glEnable(GL_SCISSOR_TEST);
-		glScissor(0, 0, width, 100);
 		render();
-		glScissor(0, 400, width, 100);
-		render();
-		glDisable(GL_SCISSOR_TEST);
 		SwapBuffers(dc);
 	}
 	return 0;
