@@ -60,6 +60,40 @@ void Frustum::InitPerspective(const float & fov, const float & aspect, const flo
 	mEBO = CreateGPUBufferObject(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), GL_STATIC_DRAW, indices);
 }
 
+void Frustum::InitOrtho(const float & left, const float & right, const float & top, const float & bottom, const float & near, const float & far)
+{
+	//生成点,用于生成VBO
+	float vertexes[] = {
+		left, bottom, -near,
+		right, bottom, -near,
+		right, top, -near,
+		left, top, -near,
+
+		left, bottom, -far,
+		right, bottom, -far,
+		right, top, -far,
+		left, top, -far,
+	};
+	float vertexCount = sizeof(vertexes) / sizeof(float);
+	//连接顺序，用于生成EBO
+	unsigned int indices[] = {
+		0,1,
+		1,2,
+		2,3,
+		3,0,
+		4,5,
+		5,6,
+		6,7,
+		7,4,
+		3,7,
+		2,6,
+		0,4,
+		1,5
+	};
+	mVBO = CreateGPUBufferObject(GL_ARRAY_BUFFER, sizeof(vertexes), GL_STATIC_DRAW, vertexes);
+	mEBO = CreateGPUBufferObject(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), GL_STATIC_DRAW, indices);
+}
+
 void Frustum::Draw(const float* const& m, const float* const& v, const float* const& p)
 {
 
