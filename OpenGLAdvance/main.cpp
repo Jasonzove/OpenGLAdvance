@@ -8,6 +8,7 @@
 #include "resource.h"
 #include "shader_coder.h"
 #include "timer.h"
+#include "frustum.h"
 
 //#pragma  comment(lib, "opengl32.lib")
 #pragma  comment(lib, "glew32.lib")
@@ -119,6 +120,9 @@ INT WINAPI WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _
 	glViewport(0.0f, 0.0f, (float)width, (float)height);
 
 	glm::mat4 projectionMat = glm::perspective(45.0f, (float)width / (float)height, 0.1f, 1000.0f);
+	Frustum frustum;
+	frustum.InitProgram();
+	frustum.InitPerspective(45.0f, (float)width / (float)height, 0.1f, 4.0f);
 	//2d，调整，原图是1*1像素的
 	//glm::mat4 uiMat = glm::ortho(-400.0f, 400.0f, -300.0f, 300.0f); //和屏幕一样大，保证不变形
 	//glm::mat4 uiMat = glm::ortho(-4.0f/8.0f, 4.0f / 8.0f, -3.0f / 8.0f, 3.0f / 8.0f);
@@ -129,7 +133,7 @@ INT WINAPI WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _
 		0,0,0,1
 	};
 	//glm::mat4 modelMat = glm::scale(100.0f, 100.0f, 1.0f); //一个像素，放大100倍才能看见
-	glm::mat4 modelMat = glm::translate(0.0f, 0.0f, -4.0f);
+	glm::mat4 modelMat = glm::translate(-2.0f, 0.0f, -4.0f)*glm::rotate(-20.0f, 0.0f,1.0f,0.0f);
 	glm::mat4 normalMat = glm::inverseTranspose(modelMat);
 	static float angle;
 
@@ -181,7 +185,8 @@ INT WINAPI WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _
 		//modelMat = glm::translate(0.0f, 0.0f, -4.0f) * glm::rotate(angle, 0.0f, 1.0f, 0.0f);
 		//glm::mat4 normalMat = glm::inverseTranspose(modelMat); //model更新需要更新normalmat,normalmat的作用就是讲法线从局部坐标系转到世界坐标系
 		glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT);
-		glEnable(GL_SCISSOR_TEST);
+		frustum.Draw(glm::value_ptr(modelMat), idetity, glm::value_ptr(projectionMat));
+
 		render();
 		SwapBuffers(dc);
 	}

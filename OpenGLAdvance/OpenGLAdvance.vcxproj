@@ -157,6 +157,8 @@
     <None Include="Res\shader\point_sprite.vs" />
     <None Include="Res\shader\ui.fs" />
     <None Include="Res\shader\ui.vs" />
+    <None Include="Res\shader\white.fs" />
+    <None Include="Res\shader\white.vs" />
     <None Include="shader_f.bin" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

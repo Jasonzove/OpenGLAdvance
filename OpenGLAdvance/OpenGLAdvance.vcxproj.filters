@@ -99,5 +99,11 @@
     <None Include="Res\shader\point_sprite.vs">
       <Filter>Source Files\shader</Filter>
     </None>
+    <None Include="Res\shader\white.fs">
+      <Filter>Source Files\shader</Filter>
+    </None>
+    <None Include="Res\shader\white.vs">
+      <Filter>Source Files\shader</Filter>
+    </None>
   </ItemGroup>
 </Project>
