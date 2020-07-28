@@ -41,6 +41,6 @@ void main()
     else
     {
         //将颜色单独提出来相加，不会减弱其效果。相乘会减弱其效果
-        gl_FragColor = texture2D(U_MainTexture, V_texcoord) * (diffuseColor)  + specularColor;
+        gl_FragColor = texture2D(U_MainTexture, V_texcoord) * (diffuseColor);
     }
 }

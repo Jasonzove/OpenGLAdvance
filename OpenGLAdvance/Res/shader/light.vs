@@ -2,6 +2,7 @@
 in vec3 pos;
 in vec2 texcoord;
 in vec3 normal;
+in vec3 offset;
 
 uniform mat4 M;
 uniform mat4 V;
@@ -17,5 +18,5 @@ void main()
 	V_normal = mat3(NormalMat)*normal;
 	V_pos = M*vec4(pos, 1.0);
 	V_texcoord = texcoord;
-    gl_Position = P*V*M*vec4(pos, 1.0);
+    gl_Position = P*V*(M*vec4(pos, 1.0) + vec4(offset,1.0));
 }
