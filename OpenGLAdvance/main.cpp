@@ -77,10 +77,10 @@ INT WINAPI WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _
 
 	glewInit(); //glew初始化，必须放在wglMakeCurrent之后
 
-	GLuint program = CreateGPUProgram(ShaderCoder::Get(IDR_SHADER_light_vs).c_str(),
-		ShaderCoder::Get(IDR_SHADER_light_fs).c_str());
+	GLuint program = CreateGPUProgram(ShaderCoder::Get(IDR_SHADER_mix_light_vs).c_str(),
+		ShaderCoder::Get(IDR_SHADER_mix_light_fs).c_str());
 	GLuint posLocation, texcoordLocation, normalLocation, MLocation, VLocation, PLocation, normalmatLocation;
-	GLuint textureSamplerLocation, offsetLocation;
+	GLuint textureSamplerLocation, offsetLocation, surfaceColorLocation;
 	posLocation = glGetAttribLocation(program, "pos");
 	texcoordLocation = glGetAttribLocation(program, "texcoord");
 	normalLocation = glGetAttribLocation(program, "normal");
@@ -90,6 +90,11 @@ INT WINAPI WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _
 	normalmatLocation = glGetUniformLocation(program, "NormalMat");
 	textureSamplerLocation = glGetUniformLocation(program, "U_MainTexture");
 	offsetLocation = glGetAttribLocation(program, "offset");
+	//subroutine
+	surfaceColorLocation = glGetSubroutineUniformLocation(program, GL_FRAGMENT_SHADER, "U_SurfaceColor");
+	GLuint ambientLightIndex = glGetSubroutineIndex(program, GL_FRAGMENT_SHADER, "Ambient");
+	GLuint diffuseLightIndex = glGetSubroutineIndex(program, GL_FRAGMENT_SHADER, "Diffuse");
+	GLuint specularLightIndex = glGetSubroutineIndex(program, GL_FRAGMENT_SHADER, "Specular");
 
 	//obj model
 	int* indexes = nullptr;
@@ -104,10 +109,10 @@ INT WINAPI WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _
 	GLuint ebo = CreateGPUBufferObject(GL_ELEMENT_ARRAY_BUFFER, sizeof(int)*indexCount, GL_STATIC_DRAW, indexes);
 	
 	//instancing 
-	float posOffest[] = {-1.0f, 0.0f, 0.0f,
-	0.0f,0.0f,0.0f,
-	1.0f,0.0f,0.0f};
-	GLuint offesetVBO = CreateGPUBufferObject(GL_ARRAY_BUFFER, sizeof(posOffest), GL_STATIC_DRAW, posOffest);
+	//float posOffest[] = {-1.0f, 0.0f, 0.0f,
+	//0.0f,0.0f,0.0f,
+	//1.0f,0.0f,0.0f};
+	//GLuint offesetVBO = CreateGPUBufferObject(GL_ARRAY_BUFFER, sizeof(posOffest), GL_STATIC_DRAW, posOffest);
 
 	//texture
 	GLuint textureId = CreateTexture("./res/image/niutou.bmp");
@@ -163,21 +168,15 @@ INT WINAPI WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _
 		glVertexAttribPointer(normalLocation, 3, GL_FLOAT, GL_FALSE, sizeof(VertexData), (void*)(5 * sizeof(float)));
 		glBindBuffer(GL_ARRAY_BUFFER, 0);
 
-		glBindBuffer(GL_ARRAY_BUFFER, offesetVBO);
-		glEnableVertexAttribArray(offsetLocation);
-		glVertexAttribPointer(offsetLocation, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
-		glBindBuffer(GL_ARRAY_BUFFER, 0);
-		glVertexAttribDivisor(offsetLocation, 1); //所有点迭代一次之后才画下一个
-
+		glUniformSubroutinesuiv(GL_FRAGMENT_SHADER, 1, &specularLightIndex);
 		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo);
-		//glDrawElements(GL_TRIANGLES, indexCount, GL_UNSIGNED_INT, 0);
-		glDrawElementsInstanced(GL_TRIANGLES, indexCount, GL_UNSIGNED_INT, 0, 3);
+		glDrawElements(GL_TRIANGLES, indexCount, GL_UNSIGNED_INT, 0);
+		//glDrawElementsInstanced(GL_TRIANGLES, indexCount, GL_UNSIGNED_INT, 0, 3);
 		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 
 		glUseProgram(0);
 	};
 	//GL_CHECK(glEnable(GL_LINE));
-	Timer t;
 	MSG msg;
 	while (true)
 	{
@@ -198,15 +197,7 @@ INT WINAPI WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _
 		//modelMat = glm::translate(0.0f, 0.0f, -4.0f) * glm::rotate(angle, 0.0f, 1.0f, 0.0f);
 		//glm::mat4 normalMat = glm::inverseTranspose(modelMat); //model更新需要更新normalmat,normalmat的作用就是讲法线从局部坐标系转到世界坐标系
 		glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT);
-		t.Start();
-		//modelMat = glm::translate(-1.0f, -0.5f, -4.0f)*glm::rotate(90.0f, 0.0f, -1.0f, 0.0f)*glm::scale(0.01f, 0.01f, 0.01f);
 		render();
-		//modelMat = glm::translate(0.0f, -0.5f, -4.0f)*glm::rotate(90.0f, 0.0f, -1.0f, 0.0f)*glm::scale(0.01f, 0.01f, 0.01f);
-		//render();
-		//modelMat = glm::translate(1.0f, -0.5f, -4.0f)*glm::rotate(90.0f, 0.0f, -1.0f, 0.0f)*glm::scale(0.01f, 0.01f, 0.01f);
-		//render();
-		glFlush();
-		printf("%f ms\n", t.GetPassedTimeInMs());
 		SwapBuffers(dc);
 	}
 	return 0;
