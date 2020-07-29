@@ -1,4 +1,5 @@
 #pragma once
+#include <functional>
 #include "glew.h"
 
 char* LoadFileContent(const char* const& filePath);
@@ -6,6 +7,8 @@ char* LoadFileContent(const char* const& filePath);
 GLuint CreateGPUProgram(const char* const& vsShaderCode, const char* const& fsShaderCode);
 
 GLuint CreateGPUBufferObject(GLenum targetType, GLsizeiptr size, GLenum usage, const void* data = nullptr);
+
+GLuint CreatVAO(std::function<void()> setting);
 
 GLuint CreateTexture(const char* const& filePath);
 

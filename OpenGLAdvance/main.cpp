@@ -105,9 +105,18 @@ INT WINAPI WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _
 	//vbo, ebo
 	vertexData[0].position[0] = 0.0f;
 	vertexData[0].position[1] = 0.0f; //点精灵的朝向永远朝一个方向，旋转不起作用
-	GLuint vbo = CreateGPUBufferObject(GL_ARRAY_BUFFER, sizeof(VertexData)*vertexCount, GL_STATIC_DRAW, vertexData);
 	GLuint ebo = CreateGPUBufferObject(GL_ELEMENT_ARRAY_BUFFER, sizeof(int)*indexCount, GL_STATIC_DRAW, indexes);
-	
+	GLuint vao = CreatVAO([&](void)->void { //VAO只是对VBO及其状态的封装，数据还是存在VBO里面
+		GLuint vbo = CreateGPUBufferObject(GL_ARRAY_BUFFER, sizeof(VertexData)*vertexCount, GL_STATIC_DRAW, vertexData);
+		glBindBuffer(GL_ARRAY_BUFFER, vbo);
+		glEnableVertexAttribArray(posLocation);
+		glVertexAttribPointer(posLocation, 3, GL_FLOAT, GL_FALSE, sizeof(VertexData), (void*)NULL);
+		glEnableVertexAttribArray(texcoordLocation);
+		glVertexAttribPointer(texcoordLocation, 2, GL_FLOAT, GL_FALSE, sizeof(VertexData), (void*)(3 * sizeof(float)));
+		glEnableVertexAttribArray(normalLocation);
+		glVertexAttribPointer(normalLocation, 3, GL_FLOAT, GL_FALSE, sizeof(VertexData), (void*)(5 * sizeof(float)));
+		glBindBuffer(GL_ARRAY_BUFFER, 0);
+	});
 	//instancing 
 	//float posOffest[] = {-1.0f, 0.0f, 0.0f,
 	//0.0f,0.0f,0.0f,
@@ -159,21 +168,15 @@ INT WINAPI WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _
 		glUniform1i(textureSamplerLocation, 0);
 		//glBindTexture(GL_TEXTURE_2D, 0);
 
-		glBindBuffer(GL_ARRAY_BUFFER, vbo);
-		glEnableVertexAttribArray(posLocation);
-		glVertexAttribPointer(posLocation, 3, GL_FLOAT, GL_FALSE, sizeof(VertexData), (void*)NULL);
-		glEnableVertexAttribArray(texcoordLocation);
-		glVertexAttribPointer(texcoordLocation, 2, GL_FLOAT, GL_FALSE, sizeof(VertexData), (void*)(3 * sizeof(float)));
-		glEnableVertexAttribArray(normalLocation);
-		glVertexAttribPointer(normalLocation, 3, GL_FLOAT, GL_FALSE, sizeof(VertexData), (void*)(5 * sizeof(float)));
-		glBindBuffer(GL_ARRAY_BUFFER, 0);
+		glBindVertexArray(vao);
 
 		glUniformSubroutinesuiv(GL_FRAGMENT_SHADER, 1, &specularLightIndex);
 		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo);
 		glDrawElements(GL_TRIANGLES, indexCount, GL_UNSIGNED_INT, 0);
 		//glDrawElementsInstanced(GL_TRIANGLES, indexCount, GL_UNSIGNED_INT, 0, 3);
 		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
-
+		
+		glBindVertexArray(0);
 		glUseProgram(0);
 	};
 	//GL_CHECK(glEnable(GL_LINE));

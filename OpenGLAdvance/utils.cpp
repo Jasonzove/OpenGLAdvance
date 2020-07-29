@@ -105,6 +105,16 @@ GLuint CreateGPUBufferObject(GLenum targetType, GLsizeiptr size, GLenum usage, c
 	return object;
 }
 
+GLuint CreatVAO(std::function<void()> setting)
+{
+	GLuint vao;
+	glGenVertexArrays(1, &vao);
+	glBindVertexArray(vao);
+	setting();
+	glBindVertexArray(0);
+	return vao;
+}
+
 const unsigned long FROMAT_DXT1 = 0x31545844l;//DXT1 -> 1 T X D µÄasciÂë
 static unsigned char* DecodeDXT(const char* const& fileContent, int& width, int& height, int& size)
 {
