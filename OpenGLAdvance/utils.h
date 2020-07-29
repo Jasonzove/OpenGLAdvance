@@ -10,6 +10,8 @@ GLuint CreateGPUBufferObject(GLenum targetType, GLsizeiptr size, GLenum usage, c
 
 GLuint CreatVAO(std::function<void()> setting);
 
+GLuint CreateFrameBufferObject(GLuint& colorBuffer, GLuint& depthBuffer, const int& width, const int& height);
+
 GLuint CreateTexture(const char* const& filePath);
 
 unsigned char* LoadBMP(const char* const& path, int& width, int& height);

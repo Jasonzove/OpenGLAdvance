@@ -125,6 +125,10 @@ INT WINAPI WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _
 
 	//texture
 	GLuint textureId = CreateTexture("./res/image/niutou.bmp");
+	//fbo
+	GLuint colorBuffer, depthBuffer;
+	GLuint fbo = CreateFrameBufferObject(colorBuffer, depthBuffer, width, height);
+
 
 	//glClearColor(41.0f / 255.0f, 71.0f / 255.0f, 121.0f / 255.0f, 1.0f);
 	glClearColor(0.1f, 0.4f, 0.7f, 1.0f);
