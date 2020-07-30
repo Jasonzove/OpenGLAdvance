@@ -126,9 +126,9 @@ INT WINAPI WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _
 	//texture
 	GLuint textureId = CreateTexture("./res/image/niutou.bmp");
 	//fbo
-	//GLuint colorBuffer, colorBuffer2, depthBuffer;
+	GLuint colorBuffer, colorBuffer2, depthBuffer;
 	//这种创建方式不是最高效的，是最通用的，高效的 自己研究
-	//GLuint fbo = CreateFrameBufferObject(colorBuffer, depthBuffer, width, height, &colorBuffer2);
+	GLuint fbo = CreateFrameBufferObject(colorBuffer, depthBuffer, width, height, &colorBuffer2);
 	//glBindFramebuffer(GL_FRAMEBUFFER, fbo);
 	//glClearColor(0.1f, 0.4f, 0.7f, 1.0f);
 	//glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -189,6 +189,10 @@ INT WINAPI WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _
 		glUseProgram(0);
 	};
 	//GL_CHECK(glEnable(GL_LINE));
+	glMatrixMode(GL_PROJECTION);
+	glLoadMatrixf(glm::value_ptr(projectionMat));
+	glMatrixMode(GL_MODELVIEW);
+	glLoadIdentity();
 	MSG msg;
 	while (true)
 	{
@@ -208,8 +212,27 @@ INT WINAPI WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _
 		//}
 		//modelMat = glm::translate(0.0f, 0.0f, -4.0f) * glm::rotate(angle, 0.0f, 1.0f, 0.0f);
 		//glm::mat4 normalMat = glm::inverseTranspose(modelMat); //model更新需要更新normalmat,normalmat的作用就是讲法线从局部坐标系转到世界坐标系
-		glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT);
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+		glBindFramebuffer(GL_FRAMEBUFFER, fbo);
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		render();
+		glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+		glEnable(GL_TEXTURE_2D);
+		glBindTexture(GL_TEXTURE_2D, depthBuffer);
+		glBegin(GL_QUADS);
+		glTexCoord2f(0.0f, 0.0f);
+		glVertex3f(-0.5f, -0.5f, -2.0f);
+		glTexCoord2f(1.0f, 0.0f);
+		glVertex3f(0.5f, -0.5f, -2.0f);
+		glTexCoord2f(1.0f, 1.0f);
+		glVertex3f(0.5f, 0.5f, -2.0f);
+		glTexCoord2f(0.0f, 1.0f);
+		glVertex3f(-0.5f, 0.5f, -2.0f);
+		glEnd();
+		glBindTexture(GL_TEXTURE_2D, 0);
+			
+
 		SwapBuffers(dc);
 	}
 	return 0;
