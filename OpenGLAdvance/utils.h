@@ -10,7 +10,7 @@ GLuint CreateGPUBufferObject(GLenum targetType, GLsizeiptr size, GLenum usage, c
 
 GLuint CreatVAO(std::function<void()> setting);
 
-GLuint CreateFrameBufferObject(GLuint& colorBuffer, GLuint& depthBuffer, const int& width, const int& height);
+GLuint CreateFrameBufferObject(GLuint& colorBuffer, GLuint& depthBuffer, const int& width, const int& height, GLuint* colorBuffer2 = nullptr);
 
 GLuint CreateTexture(const char* const& filePath);
 

@@ -155,6 +155,8 @@
     <None Include="Res\shader\light.vs" />
     <None Include="Res\shader\mix_light.fs" />
     <None Include="Res\shader\mix_light.vs" />
+    <None Include="Res\shader\mix_light_MT.fs" />
+    <None Include="Res\shader\mix_light_MT.vs" />
     <None Include="Res\shader\point_sprite.fs" />
     <None Include="Res\shader\point_sprite.vs" />
     <None Include="Res\shader\ui.fs" />

@@ -77,8 +77,8 @@ INT WINAPI WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _
 
 	glewInit(); //glew初始化，必须放在wglMakeCurrent之后
 
-	GLuint program = CreateGPUProgram(ShaderCoder::Get(IDR_SHADER_mix_light_vs).c_str(),
-		ShaderCoder::Get(IDR_SHADER_mix_light_fs).c_str());
+	GLuint program = CreateGPUProgram(ShaderCoder::Get(IDR_SHADER_mix_light_mt_vs).c_str(),
+		ShaderCoder::Get(IDR_SHADER_mix_light_mt_fs).c_str());
 	GLuint posLocation, texcoordLocation, normalLocation, MLocation, VLocation, PLocation, normalmatLocation;
 	GLuint textureSamplerLocation, offsetLocation, surfaceColorLocation;
 	posLocation = glGetAttribLocation(program, "pos");
@@ -126,9 +126,9 @@ INT WINAPI WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _
 	//texture
 	GLuint textureId = CreateTexture("./res/image/niutou.bmp");
 	//fbo
-	GLuint colorBuffer, depthBuffer;
+	GLuint colorBuffer, colorBuffer2, depthBuffer;
 	//这种创建方式不是最高效的，是最通用的，高效的 自己研究
-	GLuint fbo = CreateFrameBufferObject(colorBuffer, depthBuffer, width, height);
+	GLuint fbo = CreateFrameBufferObject(colorBuffer, depthBuffer, width, height, &colorBuffer2);
 	//glBindFramebuffer(GL_FRAMEBUFFER, fbo);
 	//glClearColor(0.1f, 0.4f, 0.7f, 1.0f);
 	//glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -173,7 +173,7 @@ INT WINAPI WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _
 		glUniformMatrix4fv(PLocation, 1, GL_FALSE, glm::value_ptr(projectionMat));
 		glUniformMatrix4fv(normalmatLocation, 1, GL_FALSE, glm::value_ptr(normalMat));
 
-		glBindTexture(GL_TEXTURE_2D, colorBuffer);
+		glBindTexture(GL_TEXTURE_2D, textureId);
 		glUniform1i(textureSamplerLocation, 0);
 		//glBindTexture(GL_TEXTURE_2D, 0);
 
@@ -222,7 +222,7 @@ INT WINAPI WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _
 		glClearColor(0.1f, 0.4f, 0.7f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		glEnable(GL_TEXTURE_2D);
-		glBindTexture(GL_TEXTURE_2D, colorBuffer);
+		glBindTexture(GL_TEXTURE_2D, colorBuffer2);
 		glBegin(GL_QUADS);
 		glTexCoord2f(0.0f, 0.0f);
 		glVertex3f(-0.5f, -0.5f, -4.0f);

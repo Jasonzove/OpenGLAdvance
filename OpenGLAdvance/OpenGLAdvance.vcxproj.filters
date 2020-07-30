@@ -111,5 +111,11 @@
     <None Include="Res\shader\mix_light.vs">
       <Filter>Source Files\shader</Filter>
     </None>
+    <None Include="Res\shader\mix_light_MT.fs">
+      <Filter>Source Files\shader</Filter>
+    </None>
+    <None Include="Res\shader\mix_light_MT.vs">
+      <Filter>Source Files\shader</Filter>
+    </None>
   </ItemGroup>
 </Project>

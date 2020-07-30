@@ -86,7 +86,7 @@ GLuint CreateGPUProgram(const char * const & vsShaderCode, const char * const & 
 		char szLog[1024] = { 0 };
 		GLsizei logLen = 0;
 		glGetProgramInfoLog(program, 1024, &logLen, szLog);
-		printf("CreateGPUProgram():glLinkProgram failed!\nvs\n:%s\nfs\n:%s\n", vsShaderCode, fsShaderCode);
+		printf("CreateGPUProgram():glLinkProgram failed!\n%s\nvs\n:%s\nfs\n", szLog, vsShaderCode, fsShaderCode);
 		glDeleteProgram(program);
 		program = 0;
 		return program;
@@ -115,7 +115,7 @@ GLuint CreatVAO(std::function<void()> setting)
 	return vao;
 }
 
-GLuint CreateFrameBufferObject(GLuint& colorBuffer, GLuint& depthBuffer, const int& width, const int& height)
+GLuint CreateFrameBufferObject(GLuint& colorBuffer, GLuint& depthBuffer, const int& width, const int& height, GLuint* colorBuffer2)
 {
 	GLuint fbo;
 	glGenFramebuffers(1, &fbo);
@@ -131,6 +131,20 @@ GLuint CreateFrameBufferObject(GLuint& colorBuffer, GLuint& depthBuffer, const i
 	glBindTexture(GL_TEXTURE_2D, 0);
 	//°ó¶¨colorbuffer
 	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, colorBuffer, 0);
+	if (colorBuffer2 != nullptr)
+	{
+		glGenTextures(1, colorBuffer2);
+		glBindTexture(GL_TEXTURE_2D, *colorBuffer2);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, nullptr);
+		glBindTexture(GL_TEXTURE_2D, 0);
+		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT1, GL_TEXTURE_2D, *colorBuffer2, 0);
+		GLenum buffers[] = { GL_COLOR_ATTACHMENT0,GL_COLOR_ATTACHMENT1 };
+		glDrawBuffers(2, buffers);
+	}
 	//depthbuffer
 	glGenTextures(1, &depthBuffer);
 	glBindTexture(GL_TEXTURE_2D, depthBuffer);
