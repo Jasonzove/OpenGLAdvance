@@ -1,5 +1,6 @@
 #include <windows.h>
 #include "glew.h"
+#include "wglew.h"
 #include "Glm/ext.hpp"
 #include "Glm/glm.hpp"
 
@@ -14,6 +15,49 @@
 #pragma  comment(lib, "glew32.lib")
 
 ObjModel objModel;
+
+HGLRC CreateNBRC(HDC dc)
+{
+	HGLRC rc = nullptr;
+	GLint attribs[] = { //设置渲染设备属性
+		WGL_DRAW_TO_PBUFFER_ARB, GL_TRUE,
+		WGL_ACCELERATION_ARB, WGL_FULL_ACCELERATION_ARB,
+		WGL_DOUBLE_BUFFER_ARB, GL_TRUE,
+		WGL_RED_BITS_ARB, 8,
+		WGL_GREEN_BITS_ARB, 8,
+		WGL_BLUE_BITS_ARB, 8,
+		WGL_ALPHA_BITS_ARB, 8,
+		WGL_DEPTH_BITS_ARB, 24,
+		WGL_STENCIL_BITS_ARB, 8,
+		WGL_SAMPLE_BUFFERS_ARB, GL_TRUE, //开启多重采样
+		WGL_SAMPLES_ARB, 16,//16重采样
+		NULL, NULL
+	};
+
+	int pixelFormat[256];
+	memset(pixelFormat, 0, 256 * sizeof(int));
+	UINT formatNum = 0;
+	wglChoosePixelFormatARB(dc, attribs, NULL, 256, pixelFormat, &formatNum);
+	printf("support attribte format number is:%u\n", formatNum);
+	if (formatNum > 0)
+	{
+		//让显卡帮我们选择像素格式
+		PIXELFORMATDESCRIPTOR pfd;
+		DescribePixelFormat(dc, pixelFormat[0], sizeof(pfd), &pfd);
+		SetPixelFormat(dc, pixelFormat[0], &pfd);
+
+		int contextAttributs[] = {
+			WGL_CONTEXT_MAJOR_VERSION_ARB, 4,
+			WGL_CONTEXT_MINOR_VERSION_ARB, 6,
+			WGL_CONTEXT_PROFILE_MASK_ARB, WGL_CONTEXT_COMPATIBILITY_PROFILE_BIT_ARB, //一定要选这种兼容模式
+			0
+		};
+
+		rc = wglCreateContextAttribsARB(dc, nullptr, contextAttributs);
+	}
+
+	return rc;
+}
 
 LRESULT CALLBACK GLWindowProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 {
@@ -69,16 +113,32 @@ INT WINAPI WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _
 	HGLRC rc = wglCreateContext(dc);
 	wglMakeCurrent(dc, rc);
 
+	glewInit(); //glew初始化，必须放在wglMakeCurrent之后
+	if (wglChoosePixelFormatARB) // 判断硬件是否支持多重采样抗锯齿
+	{
+		printf("wglChoosePixelFormatARB != nullptr\n");
+		//不能再一个window上销毁一个RC在创建新的RC，只能销毁窗口重新创建
+		//destory window
+		wglMakeCurrent(dc, nullptr);
+		wglDeleteContext(rc);
+		rc = nullptr;
+		ReleaseDC(hwnd, dc);
+		dc = nullptr;
+		DestroyWindow(hwnd);
+		hwnd = CreateWindowEx(NULL, L"OpenGL", L"RenderWindow", WS_OVERLAPPEDWINDOW, 100, 100, rect.right - rect.left, rect.bottom - rect.top, NULL, NULL, hInstance, NULL);
+		dc = GetDC(hwnd);
+		rc = CreateNBRC(dc);
+		wglMakeCurrent(dc, rc);
+	}
+
 	int width = 0;
 	int height = 0;
 	GetClientRect(hwnd, &rect);
 	width = rect.right - rect.left;
 	height = rect.bottom - rect.top;
 
-	glewInit(); //glew初始化，必须放在wglMakeCurrent之后
-
-	GLuint program = CreateGPUProgram(ShaderCoder::Get(IDR_SHADER_show_depth_vs).c_str(),
-		ShaderCoder::Get(IDR_SHADER_show_depth_fs).c_str());
+	GLuint program = CreateGPUProgram(ShaderCoder::Get(IDR_SHADER_mix_light_mt_vs).c_str(),
+		ShaderCoder::Get(IDR_SHADER_mix_light_fs).c_str());
 	GLuint posLocation, texcoordLocation, normalLocation, MLocation, VLocation, PLocation, normalmatLocation;
 	GLuint textureSamplerLocation, offsetLocation, surfaceColorLocation;
 	posLocation = glGetAttribLocation(program, "pos");
@@ -173,13 +233,13 @@ INT WINAPI WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _
 		glUniformMatrix4fv(PLocation, 1, GL_FALSE, glm::value_ptr(projectionMat));
 		glUniformMatrix4fv(normalmatLocation, 1, GL_FALSE, glm::value_ptr(normalMat));
 
-		//glBindTexture(GL_TEXTURE_2D, textureId);
-		//glUniform1i(textureSamplerLocation, 0);
+		glBindTexture(GL_TEXTURE_2D, textureId);
+		glUniform1i(textureSamplerLocation, 0);
 		//glBindTexture(GL_TEXTURE_2D, 0);
 
 		glBindVertexArray(vao);
 
-		//glUniformSubroutinesuiv(GL_FRAGMENT_SHADER, 1, &specularLightIndex);
+		glUniformSubroutinesuiv(GL_FRAGMENT_SHADER, 1, &specularLightIndex);
 		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo);
 		glDrawElements(GL_TRIANGLES, indexCount, GL_UNSIGNED_INT, 0);
 		//glDrawElementsInstanced(GL_TRIANGLES, indexCount, GL_UNSIGNED_INT, 0, 3);
@@ -189,10 +249,10 @@ INT WINAPI WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _
 		glUseProgram(0);
 	};
 	//GL_CHECK(glEnable(GL_LINE));
-	glMatrixMode(GL_PROJECTION);
-	glLoadMatrixf(glm::value_ptr(projectionMat));
-	glMatrixMode(GL_MODELVIEW);
-	glLoadIdentity();
+	//glMatrixMode(GL_PROJECTION);
+	//glLoadMatrixf(glm::value_ptr(projectionMat));
+	//glMatrixMode(GL_MODELVIEW);
+	//glLoadIdentity();
 	MSG msg;
 	while (true)
 	{
@@ -213,25 +273,25 @@ INT WINAPI WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _
 		//modelMat = glm::translate(0.0f, 0.0f, -4.0f) * glm::rotate(angle, 0.0f, 1.0f, 0.0f);
 		//glm::mat4 normalMat = glm::inverseTranspose(modelMat); //model更新需要更新normalmat,normalmat的作用就是讲法线从局部坐标系转到世界坐标系
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-		glBindFramebuffer(GL_FRAMEBUFFER, fbo);
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+		//glBindFramebuffer(GL_FRAMEBUFFER, fbo);
+		//glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		render();
-		glBindFramebuffer(GL_FRAMEBUFFER, 0);
+		//glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
-		glEnable(GL_TEXTURE_2D);
-		glBindTexture(GL_TEXTURE_2D, depthBuffer);
-		glBegin(GL_QUADS);
-		glTexCoord2f(0.0f, 0.0f);
-		glVertex3f(-0.5f, -0.5f, -2.0f);
-		glTexCoord2f(1.0f, 0.0f);
-		glVertex3f(0.5f, -0.5f, -2.0f);
-		glTexCoord2f(1.0f, 1.0f);
-		glVertex3f(0.5f, 0.5f, -2.0f);
-		glTexCoord2f(0.0f, 1.0f);
-		glVertex3f(-0.5f, 0.5f, -2.0f);
-		glEnd();
-		glBindTexture(GL_TEXTURE_2D, 0);
-			
+		//glEnable(GL_TEXTURE_2D);
+		//glBindTexture(GL_TEXTURE_2D, depthBuffer);
+		//glBegin(GL_QUADS);
+		//glTexCoord2f(0.0f, 0.0f);
+		//glVertex3f(-0.5f, -0.5f, -2.0f);
+		//glTexCoord2f(1.0f, 0.0f);
+		//glVertex3f(0.5f, -0.5f, -2.0f);
+		//glTexCoord2f(1.0f, 1.0f);
+		//glVertex3f(0.5f, 0.5f, -2.0f);
+		//glTexCoord2f(0.0f, 1.0f);
+		//glVertex3f(-0.5f, 0.5f, -2.0f);
+		//glEnd();
+		//glBindTexture(GL_TEXTURE_2D, 0);
+		//	
 
 		SwapBuffers(dc);
 	}

@@ -75,5 +75,6 @@ subroutine (SurfaceColor) vec4 Specular()
 
 void main()
 {
-    gl_FragColor = U_SurfaceColor();
+    //gl_FragColor = U_SurfaceColor();
+    gl_FragColor = texture2D(U_MainTexture, V_texcoord);
 }
