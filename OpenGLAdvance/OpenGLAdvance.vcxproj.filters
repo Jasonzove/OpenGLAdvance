@@ -117,5 +117,11 @@
     <None Include="Res\shader\mix_light_MT.vs">
       <Filter>Source Files\shader</Filter>
     </None>
+    <None Include="Res\shader\show_depth.fs">
+      <Filter>Source Files\shader</Filter>
+    </None>
+    <None Include="Res\shader\show_depth.vs">
+      <Filter>Source Files\shader</Filter>
+    </None>
   </ItemGroup>
 </Project>
