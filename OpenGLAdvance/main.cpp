@@ -185,6 +185,7 @@ INT WINAPI WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _
 
 	//texture
 	GLuint textureId = CreateTexture("./res/image/niutou.bmp");
+	//GLuint textureId = ReverseColor("./res/image/niutou.bmp");
 	//fbo
 	GLuint colorBuffer, colorBuffer2, depthBuffer;
 	//这种创建方式不是最高效的，是最通用的，高效的 自己研究
@@ -194,6 +195,21 @@ INT WINAPI WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _
 	//glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	//glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
+	//反色
+	GLuint computeProgram = CreateComputeProgram(ShaderCoder::Get(IDR_SHADER_simple_compute).c_str());
+	GLuint computeTexture = CreateComputeTexture(width, height);
+	Timer t;
+	t.Start();
+	glUseProgram(computeProgram);
+	//输入
+	glBindImageTexture(0, textureId, 0, GL_FALSE, 0, GL_READ_ONLY, GL_RGBA8);
+	//输出
+	glBindImageTexture(1, computeTexture, 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_RGBA8);
+	glDispatchCompute(width / 16, height / 16, 1);
+	//sync cpu with GPU:同步
+	glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT);
+	glUseProgram(0);
+	printf("compute shader time:%f ms\n", t.GetPassedTimeInMs());
 
 	//glClearColor(41.0f / 255.0f, 71.0f / 255.0f, 121.0f / 255.0f, 1.0f);
 	glClearColor(0.1f, 0.4f, 0.7f, 1.0f);
@@ -233,7 +249,7 @@ INT WINAPI WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _
 		glUniformMatrix4fv(PLocation, 1, GL_FALSE, glm::value_ptr(projectionMat));
 		glUniformMatrix4fv(normalmatLocation, 1, GL_FALSE, glm::value_ptr(normalMat));
 
-		glBindTexture(GL_TEXTURE_2D, textureId);
+		glBindTexture(GL_TEXTURE_2D, computeTexture);
 		glUniform1i(textureSamplerLocation, 0);
 		//glBindTexture(GL_TEXTURE_2D, 0);
 
@@ -248,11 +264,6 @@ INT WINAPI WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _
 		glBindVertexArray(0);
 		glUseProgram(0);
 	};
-	//GL_CHECK(glEnable(GL_LINE));
-	//glMatrixMode(GL_PROJECTION);
-	//glLoadMatrixf(glm::value_ptr(projectionMat));
-	//glMatrixMode(GL_MODELVIEW);
-	//glLoadIdentity();
 	MSG msg;
 	while (true)
 	{
@@ -273,26 +284,7 @@ INT WINAPI WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _
 		//modelMat = glm::translate(0.0f, 0.0f, -4.0f) * glm::rotate(angle, 0.0f, 1.0f, 0.0f);
 		//glm::mat4 normalMat = glm::inverseTranspose(modelMat); //model更新需要更新normalmat,normalmat的作用就是讲法线从局部坐标系转到世界坐标系
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-		//glBindFramebuffer(GL_FRAMEBUFFER, fbo);
-		//glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		render();
-		//glBindFramebuffer(GL_FRAMEBUFFER, 0);
-
-		//glEnable(GL_TEXTURE_2D);
-		//glBindTexture(GL_TEXTURE_2D, depthBuffer);
-		//glBegin(GL_QUADS);
-		//glTexCoord2f(0.0f, 0.0f);
-		//glVertex3f(-0.5f, -0.5f, -2.0f);
-		//glTexCoord2f(1.0f, 0.0f);
-		//glVertex3f(0.5f, -0.5f, -2.0f);
-		//glTexCoord2f(1.0f, 1.0f);
-		//glVertex3f(0.5f, 0.5f, -2.0f);
-		//glTexCoord2f(0.0f, 1.0f);
-		//glVertex3f(-0.5f, 0.5f, -2.0f);
-		//glEnd();
-		//glBindTexture(GL_TEXTURE_2D, 0);
-		//	
-
 		SwapBuffers(dc);
 	}
 	return 0;

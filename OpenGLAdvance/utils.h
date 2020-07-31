@@ -6,6 +6,10 @@ char* LoadFileContent(const char* const& filePath);
 
 GLuint CreateGPUProgram(const char* const& vsShaderCode, const char* const& fsShaderCode);
 
+GLuint CreateComputeProgram(const char* const& computeShaderCode);
+
+GLuint CreateComputeTexture(const int& width, const int& height);
+
 GLuint CreateGPUBufferObject(GLenum targetType, GLsizeiptr size, GLenum usage, const void* data = nullptr);
 
 GLuint CreatVAO(std::function<void()> setting);
@@ -21,6 +25,8 @@ void SavePixelDataToBMP(
 	unsigned char* const& pixelData,
 	const int& width,
 	const int& height);
+
+GLuint ReverseColor(const char* const& filePath);
 
 void CheckGLError(const char*const& pFile, const int& line);
 #define GL_CHECK(x) \

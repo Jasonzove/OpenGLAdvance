@@ -1,6 +1,7 @@
 #include <windows.h>
 #include <stdio.h>
 #include "utils.h"
+#include "timer.h"
 
 static GLuint CompileShader(const int& shaderType, const char * const & shaderCode);
 
@@ -93,6 +94,47 @@ GLuint CreateGPUProgram(const char * const & vsShaderCode, const char * const & 
 	}
 
 	return program;
+}
+
+GLuint CreateComputeProgram(const char * const & computeShaderCode)
+{
+	GLuint computeShader = CompileShader(GL_COMPUTE_SHADER, computeShaderCode);
+
+	GLuint program = glCreateProgram();
+	glAttachShader(program, computeShader);
+	glLinkProgram(program);
+	glDetachShader(program, computeShader);
+	glDeleteShader(computeShader);
+
+	GLint linkResult = GL_TRUE;
+	glGetProgramiv(program, GL_LINK_STATUS, &linkResult);
+	if (linkResult != GL_TRUE)
+	{
+		char szLog[1024] = { 0 };
+		GLsizei logLen = 0;
+		glGetProgramInfoLog(program, 1024, &logLen, szLog);
+		printf("CreateGPUProgram():glLinkProgram failed!\n%s\ncompute\n:%s\n", szLog, computeShader);
+		glDeleteProgram(program);
+		program = 0;
+		return program;
+	}
+
+	return program;
+}
+
+GLuint CreateComputeTexture(const int& width, const int& height)
+{
+	GLuint texture;
+	glGenTextures(1, &texture);
+	glBindTexture(GL_TEXTURE_2D, texture);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+	glTexStorage2D(GL_TEXTURE_2D, 1, GL_RGBA8, width, height);
+	glBindTexture(GL_TEXTURE_2D, 0);
+
+	return texture;
 }
 
 GLuint CreateGPUBufferObject(GLenum targetType, GLsizeiptr size, GLenum usage, const void * data)
@@ -217,6 +259,7 @@ GLuint CreateTexture(const char* const& filePath)
 		piexelData = DecodeDXT(pFileContent, width, height, dxt1size);
 		format = GL_COMPRESSED_RGBA_S3TC_DXT1_EXT;
 	}
+
 	if (nullptr == piexelData)
 	{
 		printf("CreateTexture(): decode data failed!\n");
@@ -230,14 +273,18 @@ GLuint CreateTexture(const char* const& filePath)
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE); //超过的变成1
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-	if (format == GL_RGB)
-	{
-		glTexImage2D(GL_TEXTURE_2D, 0, format, width, height, 0, format, GL_UNSIGNED_BYTE, piexelData);
-	}
-	else if (format == GL_COMPRESSED_RGBA_S3TC_DXT1_EXT)
-	{
-		glCompressedTexImage2D(GL_TEXTURE_2D, 0, format, width, height, 0, dxt1size, piexelData);
-	}
+	//if (format == GL_RGB)
+	//{
+	//	glTexImage2D(GL_TEXTURE_2D, 0, format, width, height, 0, format, GL_UNSIGNED_BYTE, piexelData);
+	//}
+	//else if (format == GL_COMPRESSED_RGBA_S3TC_DXT1_EXT)
+	//{
+	//	glCompressedTexImage2D(GL_TEXTURE_2D, 0, format, width, height, 0, dxt1size, piexelData);
+	//}
+
+	//反色input image用
+	glTexStorage2D(GL_TEXTURE_2D, 1, GL_RGBA8, width, height);
+	glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, width, height, GL_RGB, GL_UNSIGNED_BYTE, piexelData);
 	glBindTexture(GL_TEXTURE_2D, 0);
 
 	delete piexelData;
@@ -282,6 +329,45 @@ void SavePixelDataToBMP(
 
 	fclose(pFile);
 	return;
+}
+
+GLuint ReverseColor(const char* const& filePath)
+{
+	char* pFileContent = LoadFileContent(filePath);
+	if (pFileContent == nullptr)
+	{
+		return -1;
+	}
+
+	int width = 0;
+	int height = 0;
+	unsigned char* piexelData = nullptr;
+	piexelData = LoadBMP(filePath, width, height);
+	if (piexelData == nullptr)
+	{
+		return -1;
+	}
+
+	Timer t;
+	t.Start();
+	#pragma omp parallel for
+	for (int i = 0; i < width*height*3; ++i)
+	{
+		piexelData[i] = 255 - piexelData[i];
+	}
+	printf("reverse time:%f ms\n", t.GetPassedTimeInMs());
+
+	GLuint textureId;
+	glGenTextures(1, &textureId);
+	glBindTexture(GL_TEXTURE_2D, textureId);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE); //超过的变成1
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, piexelData);
+	glBindTexture(GL_TEXTURE_2D, 0);
+
+	return textureId;
 }
 
 unsigned char* LoadBMP(const char* const& path, int& width, int& height)
