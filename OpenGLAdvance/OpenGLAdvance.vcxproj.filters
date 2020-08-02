@@ -126,5 +126,8 @@
     <None Include="Res\shader\simpleSSBO.vs">
       <Filter>Source Files\shader</Filter>
     </None>
+    <None Include="Res\shader\PointSpriteSSBO.vs">
+      <Filter>Source Files\shader</Filter>
+    </None>
   </ItemGroup>
 </Project>

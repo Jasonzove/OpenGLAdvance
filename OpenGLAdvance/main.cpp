@@ -137,7 +137,7 @@ INT WINAPI WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _
 	width = rect.right - rect.left;
 	height = rect.bottom - rect.top;
 
-	GLuint program = CreateGPUProgram(ShaderCoder::Get(IDR_SHADER_simpleSSBO_vs).c_str(),
+	GLuint program = CreateGPUProgram(ShaderCoder::Get(IDR_SHADER_point_sprite_ssbo_vs).c_str(),
 		ShaderCoder::Get(IDR_SHADER_mix_light_fs).c_str());
 	GLuint posLocation, texcoordLocation, normalLocation, MLocation, VLocation, PLocation, normalmatLocation;
 	GLuint textureSamplerLocation, offsetLocation, surfaceColorLocation;
@@ -156,12 +156,26 @@ INT WINAPI WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _
 	GLuint diffuseLightIndex = glGetSubroutineIndex(program, GL_FRAGMENT_SHADER, "Diffuse");
 	GLuint specularLightIndex = glGetSubroutineIndex(program, GL_FRAGMENT_SHADER, "Specular");
 
+	//SSBO 点精灵,扩张
+	int indexes[6] = {0,1,2,0,2,3};
+	int vertexCount = 1;
+	int indexCount = 6;
+	VertexData vertexData[1];
+	vertexData[0].position[0] = 0.0f;
+	vertexData[0].position[1] = 0.0f;
+	vertexData[0].position[2] = 0.0f;
+	for (int i = 0; i < 4; ++i)
+	{
+		//通过纹理坐标扩张
+		printf("%d,%d\n", ((i-1) & 2) >> 1, (i & 2) >> 1);
+	}
+
 	//obj model
-	int* indexes = nullptr;
-	int vertexCount = 0;
-	int indexCount = 0;
-	VertexData* vertexData = nullptr;
-	vertexData = objModel.LoadObjModel("./res/model/niutou.obj", &indexes, vertexCount, indexCount);
+	//int* indexes = nullptr;
+	//int vertexCount = 0;
+	//int indexCount = 0;
+	//VertexData* vertexData = nullptr;
+	//vertexData = objModel.LoadObjModel("./res/model/niutou.obj", &indexes, vertexCount, indexCount);
 	//vbo, ebo
 	GLuint ebo = CreateGPUBufferObject(GL_ELEMENT_ARRAY_BUFFER, sizeof(int)*indexCount, GL_STATIC_DRAW, indexes);
 	GLuint vao = CreatVAO([&](void)->void { //VAO只是对VBO及其状态的封装，数据还是存在VBO里面
@@ -218,8 +232,8 @@ INT WINAPI WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _
 
 	glEnable(GL_DEPTH_TEST);
 
-	//glEnable(GL_POINT_SPRITE); //开启点精灵贴图
-	//glEnable(GL_PROGRAM_POINT_SIZE); //开启点精灵大小
+	glEnable(GL_POINT_SPRITE); //开启点精灵贴图
+	glEnable(GL_PROGRAM_POINT_SIZE); //开启点精灵大小
 
 	//glEnable(GL_BLEND);
 	//glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
@@ -235,8 +249,8 @@ INT WINAPI WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _
 		0,0,1,0,
 		0,0,0,1
 	};
-	//glm::mat4 modelMat = glm::scale(100.0f, 100.0f, 1.0f); //一个像素，放大100倍才能看见
-	glm::mat4 modelMat = glm::translate(0.0f, -0.5f, -2.0f)*glm::rotate(90.0f, 0.0f, -1.0f, 0.0f)*glm::scale(0.01f, 0.01f, 0.01f);
+	glm::mat4 modelMat = glm::translate(0.0f, 0.0f, -1.0f);
+	//glm::mat4 modelMat = glm::translate(0.0f, -0.5f, -2.0f)*glm::rotate(90.0f, 0.0f, -1.0f, 0.0f)*glm::scale(0.01f, 0.01f, 0.01f);
 	glm::mat4 normalMat = glm::inverseTranspose(modelMat);
 	static float angle;
 
