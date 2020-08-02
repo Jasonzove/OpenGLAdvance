@@ -2,7 +2,7 @@
 
 struct VertexData 
 {
-	float position[3];
-	float texcoord[2];
-	float normal[3];
+	float position[4];
+	float texcoord[4];
+	float normal[4];
 };

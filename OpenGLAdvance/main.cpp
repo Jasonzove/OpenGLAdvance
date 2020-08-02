@@ -137,7 +137,7 @@ INT WINAPI WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _
 	width = rect.right - rect.left;
 	height = rect.bottom - rect.top;
 
-	GLuint program = CreateGPUProgram(ShaderCoder::Get(IDR_SHADER_mix_light_mt_vs).c_str(),
+	GLuint program = CreateGPUProgram(ShaderCoder::Get(IDR_SHADER_simpleSSBO_vs).c_str(),
 		ShaderCoder::Get(IDR_SHADER_mix_light_fs).c_str());
 	GLuint posLocation, texcoordLocation, normalLocation, MLocation, VLocation, PLocation, normalmatLocation;
 	GLuint textureSamplerLocation, offsetLocation, surfaceColorLocation;
@@ -163,8 +163,6 @@ INT WINAPI WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _
 	VertexData* vertexData = nullptr;
 	vertexData = objModel.LoadObjModel("./res/model/niutou.obj", &indexes, vertexCount, indexCount);
 	//vbo, ebo
-	vertexData[0].position[0] = 0.0f;
-	vertexData[0].position[1] = 0.0f; //点精灵的朝向永远朝一个方向，旋转不起作用
 	GLuint ebo = CreateGPUBufferObject(GL_ELEMENT_ARRAY_BUFFER, sizeof(int)*indexCount, GL_STATIC_DRAW, indexes);
 	GLuint vao = CreatVAO([&](void)->void { //VAO只是对VBO及其状态的封装，数据还是存在VBO里面
 		GLuint vbo = CreateGPUBufferObject(GL_ARRAY_BUFFER, sizeof(VertexData)*vertexCount, GL_STATIC_DRAW, vertexData);
@@ -177,6 +175,7 @@ INT WINAPI WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _
 		glVertexAttribPointer(normalLocation, 3, GL_FLOAT, GL_FALSE, sizeof(VertexData), (void*)(5 * sizeof(float)));
 		glBindBuffer(GL_ARRAY_BUFFER, 0);
 	});
+	GLuint ssbo = CreateGPUBufferObject(GL_SHADER_STORAGE_BUFFER, sizeof(VertexData)*vertexCount, GL_STATIC_DRAW, vertexData);
 	//instancing 
 	//float posOffest[] = {-1.0f, 0.0f, 0.0f,
 	//0.0f,0.0f,0.0f,
@@ -195,21 +194,21 @@ INT WINAPI WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _
 	//glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	//glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
-	//反色
-	GLuint computeProgram = CreateComputeProgram(ShaderCoder::Get(IDR_SHADER_simple_compute).c_str());
-	GLuint computeTexture = CreateComputeTexture(width, height);
-	Timer t;
-	t.Start();
-	glUseProgram(computeProgram);
-	//输入
-	glBindImageTexture(0, textureId, 0, GL_FALSE, 0, GL_READ_ONLY, GL_RGBA8);
-	//输出
-	glBindImageTexture(1, computeTexture, 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_RGBA8);
-	glDispatchCompute(width / 16, height / 16, 1);
-	//sync cpu with GPU:同步
-	glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT);
-	glUseProgram(0);
-	printf("compute shader time:%f ms\n", t.GetPassedTimeInMs());
+	////反色
+	//GLuint computeProgram = CreateComputeProgram(ShaderCoder::Get(IDR_SHADER_simple_compute).c_str());
+	//GLuint computeTexture = CreateComputeTexture(width, height);
+	//Timer t;
+	//t.Start();
+	//glUseProgram(computeProgram);
+	////输入
+	//glBindImageTexture(0, textureId, 0, GL_FALSE, 0, GL_READ_ONLY, GL_RGBA8);
+	////输出
+	//glBindImageTexture(1, computeTexture, 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_RGBA8);
+	//glDispatchCompute(width / 16, height / 16, 1);
+	////sync cpu with GPU:同步
+	//glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT);
+	//glUseProgram(0);
+	//printf("compute shader time:%f ms\n", t.GetPassedTimeInMs());
 
 	//glClearColor(41.0f / 255.0f, 71.0f / 255.0f, 121.0f / 255.0f, 1.0f);
 	glClearColor(0.1f, 0.4f, 0.7f, 1.0f);
@@ -249,19 +248,20 @@ INT WINAPI WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _
 		glUniformMatrix4fv(PLocation, 1, GL_FALSE, glm::value_ptr(projectionMat));
 		glUniformMatrix4fv(normalmatLocation, 1, GL_FALSE, glm::value_ptr(normalMat));
 
-		glBindTexture(GL_TEXTURE_2D, computeTexture);
+		glBindTexture(GL_TEXTURE_2D, textureId);
 		glUniform1i(textureSamplerLocation, 0);
 		//glBindTexture(GL_TEXTURE_2D, 0);
 
-		glBindVertexArray(vao);
-
-		glUniformSubroutinesuiv(GL_FRAGMENT_SHADER, 1, &specularLightIndex);
+		//glBindVertexArray(vao);
+		glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, ssbo);
+		//glUniformSubroutinesuiv(GL_FRAGMENT_SHADER, 1, &specularLightIndex);
 		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo);
 		glDrawElements(GL_TRIANGLES, indexCount, GL_UNSIGNED_INT, 0);
 		//glDrawElementsInstanced(GL_TRIANGLES, indexCount, GL_UNSIGNED_INT, 0, 3);
 		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
-		
-		glBindVertexArray(0);
+		glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, 0);
+
+		//glBindVertexArray(0);
 		glUseProgram(0);
 	};
 	MSG msg;
