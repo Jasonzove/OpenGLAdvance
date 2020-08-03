@@ -138,7 +138,7 @@ INT WINAPI WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _
 	height = rect.bottom - rect.top;
 
 	GLuint program = CreateGPUProgram(ShaderCoder::Get(IDR_SHADER_point_sprite_ssbo_vs).c_str(),
-		ShaderCoder::Get(IDR_SHADER_mix_light_fs).c_str());
+		ShaderCoder::Get(IDR_SHADER_point_sprite_ssbo_fs).c_str());
 	GLuint posLocation, texcoordLocation, normalLocation, MLocation, VLocation, PLocation, normalmatLocation;
 	GLuint textureSamplerLocation, offsetLocation, surfaceColorLocation;
 	posLocation = glGetAttribLocation(program, "pos");
@@ -236,6 +236,8 @@ INT WINAPI WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _
 	glEnable(GL_PROGRAM_POINT_SIZE); //开启点精灵大小
 
 	//glEnable(GL_BLEND);
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE);
 	//glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	glViewport(0.0f, 0.0f, (float)width, (float)height);
 

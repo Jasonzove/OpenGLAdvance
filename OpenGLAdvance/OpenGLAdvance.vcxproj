@@ -158,6 +158,7 @@
     <None Include="Res\shader\mix_light.vs" />
     <None Include="Res\shader\mix_light_MT.fs" />
     <None Include="Res\shader\mix_light_MT.vs" />
+    <None Include="Res\shader\PointSpriteSSBO.fs" />
     <None Include="Res\shader\PointSpriteSSBO.vs" />
     <None Include="Res\shader\point_sprite.fs" />
     <None Include="Res\shader\point_sprite.vs" />
