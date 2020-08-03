@@ -164,9 +164,11 @@
     <None Include="Res\shader\point_sprite.vs" />
     <None Include="Res\shader\show_depth.fs" />
     <None Include="Res\shader\show_depth.vs" />
+    <None Include="Res\shader\simple.cp" />
     <None Include="Res\shader\simpleSSBO.vs" />
     <None Include="Res\shader\ui.fs" />
     <None Include="Res\shader\ui.vs" />
+    <None Include="Res\shader\update_point_sprite.cp" />
     <None Include="Res\shader\white.fs" />
     <None Include="Res\shader\white.vs" />
     <None Include="shader_f.bin" />

@@ -175,6 +175,7 @@ INT WINAPI WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _
 	const int vertexCount = 1 << 12;
 	const int indexCount = 6*vertexCount;
 	FloatBoundle* vertexData = new FloatBoundle[vertexCount];
+	FloatBoundle* speeds = new FloatBoundle[vertexCount];
 	unsigned int* indexes = new unsigned int[indexCount];
 	unsigned int* pHeader = indexes;
 	for (int i = 0; i < vertexCount; ++i)
@@ -184,6 +185,11 @@ INT WINAPI WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _
 		vertexData[i].v[1] = sfrandom();
 		vertexData[i].v[2] = sfrandom();
 		vertexData[i].v[3] = 1.0f;
+		//speed
+		speeds[i].v[0] = sfrandom();
+		speeds[i].v[1] = sfrandom();
+		speeds[i].v[2] = sfrandom();
+		speeds[i].v[3] = 1.0f;
 		//index
 		unsigned int index = (unsigned int)(i << 2);
 		*(pHeader++) = index;
@@ -220,6 +226,10 @@ INT WINAPI WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _
 		glBindBuffer(GL_ARRAY_BUFFER, 0);
 	});
 	GLuint ssbo = CreateGPUBufferObject(GL_SHADER_STORAGE_BUFFER, sizeof(FloatBoundle)*vertexCount, GL_STATIC_DRAW, vertexData);
+	GLuint ssbo_v = CreateGPUBufferObject(GL_SHADER_STORAGE_BUFFER, sizeof(FloatBoundle)*vertexCount, GL_STATIC_DRAW, speeds);
+	GLuint updateProgram = CreateComputeProgram(ShaderCoder::Get(IDR_SHADER_update_point_cp).c_str());
+	GLuint noriseTexture = Create3DTexture(16, 16, 16);
+
 	//instancing 
 	//float posOffest[] = {-1.0f, 0.0f, 0.0f,
 	//0.0f,0.0f,0.0f,

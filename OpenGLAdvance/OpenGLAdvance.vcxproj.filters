@@ -132,5 +132,11 @@
     <None Include="Res\shader\PointSpriteSSBO.fs">
       <Filter>Source Files\shader</Filter>
     </None>
+    <None Include="Res\shader\update_point_sprite.cp">
+      <Filter>Source Files\shader</Filter>
+    </None>
+    <None Include="Res\shader\simple.cp">
+      <Filter>Source Files\shader</Filter>
+    </None>
   </ItemGroup>
 </Project>

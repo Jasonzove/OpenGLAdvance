@@ -18,6 +18,8 @@ GLuint CreateFrameBufferObject(GLuint& colorBuffer, GLuint& depthBuffer, const i
 
 GLuint CreateTexture(const char* const& filePath);
 
+GLuint Create3DTexture(const int& width, const int& height, const int& depth);
+
 unsigned char* LoadBMP(const char* const& path, int& width, int& height);
 
 void SavePixelDataToBMP(

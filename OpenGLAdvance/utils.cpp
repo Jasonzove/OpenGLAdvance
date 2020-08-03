@@ -293,6 +293,39 @@ GLuint CreateTexture(const char* const& filePath)
 	return textureId;
 }
 
+GLuint Create3DTexture(const int& width, const int& height, const int& depth)
+{
+	char* data = new char[width*height*depth];
+	char* temp = data;
+	for (int i = 0; i < width; ++i)
+	{
+		for (int ii = 0; ii < height; ++ii)
+		{
+			for (int iii=0; iii < depth; ++iii)
+			{
+				*temp++ = rand() & 0xff;
+				*temp++ = rand() & 0xff;
+				*temp++ = rand() & 0xff;
+				*temp++ = rand() & 0xff;
+			}
+		}
+	}
+
+	GLuint textureId;
+	glGenTextures(1, &textureId);
+	glBindTexture(GL_TEXTURE_3D, textureId);
+	glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+	glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+	glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_R, GL_REPEAT);
+	glTexImage3D(GL_TEXTURE_3D,0, GL_RGBA8_SNORM, width, height, depth, 0, GL_RGBA, GL_BYTE, data);
+	glBindTexture(GL_TEXTURE_3D, 0);
+	delete[] data;
+	data = nullptr;
+	return textureId;
+}
+
 void SavePixelDataToBMP(
 	const char* const& filePath,
 	unsigned char* const& pixelData,
