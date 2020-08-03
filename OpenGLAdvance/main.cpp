@@ -14,6 +14,21 @@
 //#pragma  comment(lib, "opengl32.lib")
 #pragma  comment(lib, "glew32.lib")
 
+typedef struct FloatBoundle 
+{
+	float v[4];
+}FloatBoundle;
+
+float frandom() //0~1
+{
+	return rand() / (float)RAND_MAX;
+}
+
+float sfrandom() //-1~1
+{
+	return frandom()*2.0f - 1.0f;
+}
+
 ObjModel objModel;
 
 HGLRC CreateNBRC(HDC dc)
@@ -157,18 +172,33 @@ INT WINAPI WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _
 	GLuint specularLightIndex = glGetSubroutineIndex(program, GL_FRAGMENT_SHADER, "Specular");
 
 	//SSBO 点精灵,扩张
-	int indexes[6] = {0,1,2,0,2,3};
-	int vertexCount = 1;
-	int indexCount = 6;
-	VertexData vertexData[1];
-	vertexData[0].position[0] = 0.0f;
-	vertexData[0].position[1] = 0.0f;
-	vertexData[0].position[2] = 0.0f;
-	for (int i = 0; i < 4; ++i)
+	const int vertexCount = 1 << 12;
+	const int indexCount = 6*vertexCount;
+	FloatBoundle* vertexData = new FloatBoundle[vertexCount];
+	unsigned int* indexes = new unsigned int[indexCount];
+	unsigned int* pHeader = indexes;
+	for (int i = 0; i < vertexCount; ++i)
 	{
-		//通过纹理坐标扩张
-		printf("%d,%d\n", ((i-1) & 2) >> 1, (i & 2) >> 1);
+		//pos
+		vertexData[i].v[0] = sfrandom();
+		vertexData[i].v[1] = sfrandom();
+		vertexData[i].v[2] = sfrandom();
+		vertexData[i].v[3] = 1.0f;
+		//index
+		unsigned int index = (unsigned int)(i << 2);
+		*(pHeader++) = index;
+		*(pHeader++) = index+1;
+		*(pHeader++) = index+2;
+		*(pHeader++) = index;
+		*(pHeader++) = index + 2;
+		*(pHeader++) = index + 3;
 	}
+
+	//for (int i = 0; i < 4; ++i)
+	//{
+	//	//通过纹理坐标扩张
+	//	printf("%d,%d\n", ((i-1) & 2) >> 1, (i & 2) >> 1);
+	//}
 
 	//obj model
 	//int* indexes = nullptr;
@@ -189,7 +219,7 @@ INT WINAPI WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _
 		glVertexAttribPointer(normalLocation, 3, GL_FLOAT, GL_FALSE, sizeof(VertexData), (void*)(5 * sizeof(float)));
 		glBindBuffer(GL_ARRAY_BUFFER, 0);
 	});
-	GLuint ssbo = CreateGPUBufferObject(GL_SHADER_STORAGE_BUFFER, sizeof(VertexData)*vertexCount, GL_STATIC_DRAW, vertexData);
+	GLuint ssbo = CreateGPUBufferObject(GL_SHADER_STORAGE_BUFFER, sizeof(FloatBoundle)*vertexCount, GL_STATIC_DRAW, vertexData);
 	//instancing 
 	//float posOffest[] = {-1.0f, 0.0f, 0.0f,
 	//0.0f,0.0f,0.0f,
@@ -230,7 +260,7 @@ INT WINAPI WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _
 	ShowWindow(hwnd, SW_SHOW);
 	UpdateWindow(hwnd);
 
-	glEnable(GL_DEPTH_TEST);
+	//glEnable(GL_DEPTH_TEST);
 
 	glEnable(GL_POINT_SPRITE); //开启点精灵贴图
 	glEnable(GL_PROGRAM_POINT_SIZE); //开启点精灵大小
@@ -238,6 +268,7 @@ INT WINAPI WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _
 	//glEnable(GL_BLEND);
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE);
+	glDisable(GL_CULL_FACE);
 	//glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	glViewport(0.0f, 0.0f, (float)width, (float)height);
 
@@ -251,7 +282,7 @@ INT WINAPI WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _
 		0,0,1,0,
 		0,0,0,1
 	};
-	glm::mat4 modelMat = glm::translate(0.0f, 0.0f, -1.0f);
+	glm::mat4 modelMat = glm::translate(0.0f, 0.0f, -5.0f)*glm::rotate(30.0f, 1.0f,1.0f,1.0f);
 	//glm::mat4 modelMat = glm::translate(0.0f, -0.5f, -2.0f)*glm::rotate(90.0f, 0.0f, -1.0f, 0.0f)*glm::scale(0.01f, 0.01f, 0.01f);
 	glm::mat4 normalMat = glm::inverseTranspose(modelMat);
 	static float angle;

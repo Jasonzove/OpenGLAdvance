@@ -26,7 +26,7 @@ void main()
 	vec4 spritePos = vec4(mesh.vertexes[spriteID].pos.xyz, 1.0);
 	vec4 spritePosInView = V*M*spritePos;
 	vec2 texcoord = vec2(((gl_VertexID - 1)&2)>>1, (gl_VertexID&2)>>1);
-	float spriteSize = 0.1;
+	float spriteSize = 0.05;
 	vec4 fixedPos = spritePosInView + vec4(vec2(texcoord.x*2.0 - 1.0, texcoord.y*2.0 - 1.0)*spriteSize, 0.0, 1.0);
 
 	V_texcoord = texcoord;
